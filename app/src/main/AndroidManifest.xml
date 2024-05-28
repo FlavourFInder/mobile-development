@@ -16,7 +16,7 @@
             android:name=".view.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".view.LoginActivity"
+            android:name=".view.SigninActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
