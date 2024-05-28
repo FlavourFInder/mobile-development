@@ -8,4 +8,7 @@
     <string name="register">Register</string>
     <string name="newHere">New here? register now!</string>
     <string name="haveAccount">Have an account? Sign in here!</string>
+
+    <!-- Content Description text -->
+    <string name="SignInImage">Gambar pada page Sign in</string>
 </resources>

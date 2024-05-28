@@ -1,12 +1,13 @@
 <resources>
-    <style name="LoginTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+    <style name="SigninTextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
         <item name="boxStrokeColor">@color/text_input_box_stroke</item>
-        <item name="boxStrokeWidth">5dp</item>
+        <item name="boxStrokeWidth">3dp</item>
 
         <!-- The color of the label when it is collapsed and the text field is active -->
         <item name="hintTextColor">@color/orange500</item>
         <!-- The color of the label in all other text field states (such as resting and disabled) -->
-        <item name="android:textColorHint">@color/orange500</item>
+        <item name="android:textColorHint">@color/orange200</item>
+
     </style>
 
 </resources>
