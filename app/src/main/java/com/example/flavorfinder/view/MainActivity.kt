@@ -20,7 +20,12 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         with(binding) {
             searchView.setupWithSearchBar(searchBar)
+            searchBar.inflateMenu(R.menu.search_bar_menu)
+            searchBar.setOnMenuItemClickListener { menuItem ->
+                true
+            }
         }
+
 
 //        setSupportActionBar(binding.toolbar)
 
