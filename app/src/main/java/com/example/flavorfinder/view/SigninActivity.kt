@@ -23,11 +23,18 @@ class SigninActivity : AppCompatActivity() {
         }
 
         setUpTextViewButton()
+        setUpButton()
     }
 
     private fun setUpTextViewButton(){
         binding.GoToRegisterPageTextButton.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
+        }
+    }
+
+    private fun setUpButton(){
+        binding.loginButton.setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
         }
     }
 }
