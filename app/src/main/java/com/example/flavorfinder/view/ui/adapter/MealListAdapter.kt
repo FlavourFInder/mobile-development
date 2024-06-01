@@ -19,7 +19,7 @@ class MealListAdapter: PagingDataAdapter<MealsItem, MealListAdapter.ViewHolder>(
         val mealItem = getItem(position)
         mealItem?.let { meal ->
             Glide.with(holder.itemView.context)
-                .load(meal.strImageSource)
+                .load(meal.strMealThumb)
                 .placeholder(R.drawable.default_image)
                 .into(holder.binding.ivItemCard)
             holder.binding.tvItemCard.text = meal.strMeal
