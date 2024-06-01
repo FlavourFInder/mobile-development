@@ -18,4 +18,6 @@
     <string name="title_notifications">Notifications</string>
     <string name="userProfile">user profile</string>
     <string name="example_receipt_title">Ikan Goreng Tepung</string>
+    <string name="change_profile_picture">Change profile picture</string>
+    <string name="logout">Logout</string>
 </resources>

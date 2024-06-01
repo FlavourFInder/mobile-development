@@ -6,4 +6,5 @@
     <color name="green">#ACD793</color>
     <color name="orange500">#FFA62F</color>
     <color name="orange200">#FFC96F</color>
+    <color name="transparent">#00000000</color>
 </resources>

@@ -1,6 +1,9 @@
 package com.example.flavorfinder.view
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -8,6 +11,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.ActivityMainBinding
 import com.example.flavorfinder.view.ui.home.HomeFragment
+import com.example.flavorfinder.view.ui.profile.ProfileActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -23,7 +27,14 @@ class MainActivity : AppCompatActivity() {
             searchView.setupWithSearchBar(searchBar)
             searchBar.inflateMenu(R.menu.search_bar_menu)
             searchBar.setOnMenuItemClickListener { menuItem ->
-                true
+                when(menuItem.itemId) {
+                    R.id.action_profile -> {
+                        val intent = Intent(this@MainActivity, ProfileActivity::class.java)
+                        startActivity(intent)
+                        true
+                    }
+                    else -> false
+                }
             }
         }
 
