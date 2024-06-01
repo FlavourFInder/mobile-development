@@ -7,6 +7,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.ActivityMainBinding
+import com.example.flavorfinder.view.ui.home.HomeFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+
 //        setSupportActionBar(binding.toolbar)
 
         val navView: BottomNavigationView = binding.navView
@@ -39,5 +41,6 @@ class MainActivity : AppCompatActivity() {
         )
 //        setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
     }
 }
