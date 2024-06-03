@@ -22,4 +22,7 @@
     <string name="change_profile_picture">Change Profile Picture</string>
     <string name="username">Username</string>
     <string name="logout">Logout</string>
+    <string name="ingredients">Ingredients:</string>
+    <string name="instruction">Instruction:</string>
+    <string name="bookmark">Bookmark</string>
 </resources>

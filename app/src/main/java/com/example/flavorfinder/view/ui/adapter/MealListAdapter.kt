@@ -15,6 +15,10 @@ class MealListAdapter: PagingDataAdapter<MealsItem, MealListAdapter.ViewHolder>(
 
     private lateinit var onItemClickCallback: OnItemClickCallback
 
+    fun setOnItemClickCallback(onItemClickCallback: OnItemClickCallback) {
+        this.onItemClickCallback = onItemClickCallback
+    }
+
     override fun onBindViewHolder(holder: MealListAdapter.ViewHolder, position: Int) {
         val mealItem = getItem(position)
         mealItem?.let { meal ->
