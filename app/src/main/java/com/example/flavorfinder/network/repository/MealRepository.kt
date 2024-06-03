@@ -7,18 +7,24 @@ import androidx.paging.PagingData
 import androidx.paging.liveData
 import com.example.flavorfinder.network.MealPagingSource
 import com.example.flavorfinder.network.response.MealsItem
+import com.example.flavorfinder.network.response.MealsResponse
 import com.example.flavorfinder.network.retrofit.MealsApiService
 
-class MealRepository(private val receiptApiService: MealsApiService) {
+class MealRepository(private val mealsApiService: MealsApiService) {
+
     fun getMeals(): LiveData<PagingData<MealsItem>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 20
             ),
             pagingSourceFactory = {
-                MealPagingSource(receiptApiService)
+                MealPagingSource(mealsApiService)
             }
         ).liveData
+    }
+
+    suspend fun searchMeals(query: String): MealsResponse {
+        return mealsApiService.searchMeals(query)
     }
 
     companion object {

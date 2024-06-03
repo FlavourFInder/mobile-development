@@ -11,4 +11,9 @@ interface MealsApiService {
         @Query("page") page: Int = 1,
         @Query("size") size: Int = 20
     ): MealsResponse
+
+    @GET("search.php")
+    suspend fun searchMeals(
+        @Query("s") query: String
+    ): MealsResponse
 }
