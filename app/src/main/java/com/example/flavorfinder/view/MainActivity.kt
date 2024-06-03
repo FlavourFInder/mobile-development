@@ -46,6 +46,8 @@ class MainActivity : AppCompatActivity() {
                 performSearch(query)
                 false
             }
+
+            setUpCameraButton()
         }
 
         val navView: BottomNavigationView = binding.navView
@@ -64,6 +66,12 @@ class MainActivity : AppCompatActivity() {
         if (navHostFragment is NavHostFragment) {
             val homeFragment = navHostFragment.childFragmentManager.fragments[0] as? HomeFragment
             homeFragment?.performSearch(query)
+        }
+    }
+
+    private fun setUpCameraButton(){
+        binding.floatingActionButton.setOnClickListener {
+            startActivity(Intent(this, CameraActivity::class.java))
         }
     }
 }
