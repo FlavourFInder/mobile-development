@@ -1,5 +1,7 @@
 package com.example.flavorfinder.view.ui.home
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +11,9 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flavorfinder.databinding.FragmentHomeBinding
 import com.example.flavorfinder.helper.ViewModelFactory
+import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.view.ui.adapter.MealListAdapter
+import com.example.flavorfinder.view.ui.detail.DetailActivity
 import com.example.flavorfinder.view.ui.adapter.SearchResultAdapter
 
 class HomeFragment : Fragment() {
@@ -28,7 +32,9 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        return binding.root
+        val root: View = binding.root
+
+        return root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -49,8 +55,14 @@ class HomeFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
             adapter = menuListAdapter
         }
+        menuListAdapter.setOnItemClickCallback(object : MealListAdapter.OnItemClickCallback {
+            override fun onItemClicked(data: MealsItem) {
+                detailMenu(data)
+            }
+        })
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun observeViewModel() {
         homeViewModel.searchResults.observe(viewLifecycleOwner) { meals ->
             if (meals != null) {
@@ -61,6 +73,13 @@ class HomeFragment : Fragment() {
             }
         }
     }
+
+    private fun detailMenu(data: MealsItem) {
+        val intent = Intent(requireContext(), DetailActivity::class.java)
+        intent.putExtra("data", data)
+        startActivity(intent)
+    }
+
 
     private fun getData() {
         homeViewModel.meal.observe(viewLifecycleOwner) {
@@ -75,3 +94,4 @@ class HomeFragment : Fragment() {
         homeViewModel.searchMeals(query)
     }
 }
+
