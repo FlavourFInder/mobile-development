@@ -18,7 +18,7 @@
             android:name=".view.ui.profile.ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".view.MainActivity"
+            android:name=".view.SigninActivity"
             android:exported="true"
             android:label="@string/title_activity_main">
             <intent-filter>
@@ -31,7 +31,7 @@
             android:name=".view.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".view.SigninActivity"
+            android:name=".view.MainActivity"
             android:exported="true"></activity>
     </application>
 
