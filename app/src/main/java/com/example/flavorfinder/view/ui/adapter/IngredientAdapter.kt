@@ -24,5 +24,4 @@ class IngredientAdapter(private val ingredientList: List<String>) : RecyclerView
         holder.binding.tvIngredientName.text = ingredientList[position]
     }
 
-
 }

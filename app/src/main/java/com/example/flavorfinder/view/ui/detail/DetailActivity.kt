@@ -29,24 +29,13 @@ class DetailActivity : AppCompatActivity() {
         binding = ActivityDetailBinding.inflate(layoutInflater)
 //        enableEdgeToEdge()
         setContentView(binding.root)
-        setSupportActionBar(binding.topAppBar)
+        setSupportActionBar(binding.toolbar)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        binding.appBarLayout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
-            val scrollRange = appBarLayout.totalScrollRange
-            val percentage = Math.abs(verticalOffset).toFloat() / scrollRange
-
-            if (percentage >= 0.7) {
-                binding.topAppBar.setBackgroundColor(getColor(R.color.transparent))
-            } else {
-                binding.topAppBar.setBackgroundColor(getColor(android.R.color.white))
-            }
-        }
+//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+//            insets
+//        }
 
         val result = intent.getParcelableExtra<MealsItem>("data")
         if (result != null) {
@@ -64,28 +53,22 @@ class DetailActivity : AppCompatActivity() {
                 .into(ivDetail)
 
             val ingredients = listOf(
-                items.strIngredient1 + " " + items.strMeasure1, items.strIngredient2 + " " + items.strMeasure2, items.strIngredient3 + " " + items.strMeasure3, items.strIngredient4 + " " + items.strMeasure4,
-                items.strIngredient5 + " " + items.strMeasure5, items.strIngredient6 + " " + items.strMeasure6, items.strIngredient7 + " " + items.strMeasure7, items.strIngredient8 + " " + items.strMeasure8,
-                items.strIngredient9 + " " + items.strMeasure9, items.strIngredient10 + " " + items.strMeasure10, items.strIngredient11 + " " + items.strMeasure11, items.strIngredient12 + " " + items.strMeasure12,
-                items.strIngredient13 + " " + items.strMeasure13, items.strIngredient14 + " " + items.strMeasure14, items.strIngredient15 + " " + items.strMeasure15, items.strIngredient16 + " " + items.strMeasure16,
-                items.strIngredient17 + " " + items.strMeasure17, items.strIngredient18 + " " + items.strMeasure18, items.strIngredient19 + " " + items.strMeasure19, items.strIngredient20 + " " + items.strMeasure20
-            ).filterNotNull()
+                items.strMeasure1 + " " + items.strIngredient1, items.strMeasure2 + " " + items.strIngredient2, items.strMeasure3 + " " + items.strIngredient3, items.strMeasure4 + " " + items.strIngredient4,
+                items.strMeasure5 + " " + items.strIngredient5, items.strMeasure6 + " " + items.strIngredient6, items.strMeasure7 + " " + items.strIngredient7, items.strMeasure8 + " " + items.strIngredient8,
+                items.strMeasure9 + " " + items.strIngredient9, items.strMeasure10 + " " + items.strIngredient10, items.strMeasure11 + " " + items.strIngredient11, items.strMeasure12 + " " + items.strIngredient12,
+                items.strMeasure13 + " " + items.strIngredient13, items.strMeasure14 + " " + items.strIngredient14, items.strMeasure15 + " " + items.strIngredient15, items.strMeasure16 + " " + items.strIngredient16,
+                items.strMeasure17 + " " + items.strIngredient17, items.strMeasure18 + " " + items.strIngredient18, items.strMeasure19 + " " + items.strIngredient19, items.strMeasure20 + " " + items.strIngredient20
+            ).filterNotNull().filter { it.isNotBlank() }
 
-            binding.rvIngredient.layoutManager = GridLayoutManager(this@DetailActivity, 2)
+            binding.rvIngredient.layoutManager = LinearLayoutManager(this@DetailActivity)
             binding.rvIngredient.adapter = IngredientAdapter(ingredients)
 
             tvInstruction.text = items.strInstructions
+            tvCategory.text = items.strCategory
+            tvCountry.text = items.strArea
+
         }
     }
-
-//    private fun setupToolbar() {
-//        setSupportActionBar(binding.topAppbar)
-//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-//        supportActionBar?.setDisplayShowHomeEnabled(true)
-//        binding.topAppbar.setNavigationOnClickListener {
-//            onBackPressed()
-//        }
-//    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_detail, menu)
@@ -106,11 +89,4 @@ class DetailActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun blendColors(color1: Int, color2: Int, ratio: Float): Int {
-        val inverseRatio = 1f - ratio
-        val r = (Color.red(color1) * inverseRatio + Color.red(color2) * ratio).toInt()
-        val g = (Color.green(color1) * inverseRatio + Color.green(color2) * ratio).toInt()
-        val b = (Color.blue(color1) * inverseRatio + Color.blue(color2) * ratio).toInt()
-        return Color.rgb(r, g, b)
-    }
 }
