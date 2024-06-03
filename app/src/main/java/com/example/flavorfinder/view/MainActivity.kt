@@ -2,10 +2,10 @@ package com.example.flavorfinder.view
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.flavorfinder.R
@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
             searchView.setupWithSearchBar(searchBar)
             searchBar.inflateMenu(R.menu.search_bar_menu)
             searchBar.setOnMenuItemClickListener { menuItem ->
-                when(menuItem.itemId) {
+                when (menuItem.itemId) {
                     R.id.action_profile -> {
                         val intent = Intent(this@MainActivity, ProfileActivity::class.java)
                         startActivity(intent)
@@ -36,11 +36,17 @@ class MainActivity : AppCompatActivity() {
                     else -> false
                 }
             }
+
+            // Handle search input using setOnEditorActionListener
+            searchView.editText.setOnEditorActionListener { textView, actionId, event ->
+                searchBar.setText(searchView.text)
+                searchView.hide()
+                val query = searchView.text.toString()
+                Toast.makeText(this@MainActivity, query, Toast.LENGTH_SHORT).show()
+                performSearch(query)
+                false
+            }
         }
-
-
-
-//        setSupportActionBar(binding.toolbar)
 
         val navView: BottomNavigationView = binding.navView
 
@@ -50,8 +56,14 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_home, R.id.navigation_dashboard
             )
         )
-//        setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+    }
 
+    private fun performSearch(query: String) {
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment_activity_main)
+        if (navHostFragment is NavHostFragment) {
+            val homeFragment = navHostFragment.childFragmentManager.fragments[0] as? HomeFragment
+            homeFragment?.performSearch(query)
+        }
     }
 }
