@@ -29,7 +29,7 @@
             android:name=".view.ui.profile.ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".view.SigninActivity"
+            android:name=".view.ui.signin.SigninActivity"
             android:exported="true"
             android:label="@string/title_activity_main">
             <intent-filter>
@@ -39,10 +39,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.RegisterActivity"
+            android:name=".view.ui.register.RegisterActivity"
             android:exported="false" />
         <activity
-            android:name=".view.MainActivity"
+            android:name=".view.ui.main.MainActivity"
             android:exported="true" />
     </application>
 

@@ -21,7 +21,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val homeViewModel by viewModels<HomeViewModel> {
-        ViewModelFactory.getInstance(this)
+        ViewModelFactory.getInstance(this.requireContext())
     }
     private lateinit var menuListAdapter: MealListAdapter
     private var searchResultAdapter: SearchResultAdapter? = null

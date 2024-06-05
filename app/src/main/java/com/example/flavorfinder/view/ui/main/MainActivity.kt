@@ -1,8 +1,9 @@
-package com.example.flavorfinder.view
+package com.example.flavorfinder.view.ui.main
 
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -10,11 +11,17 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.ActivityMainBinding
+import com.example.flavorfinder.helper.ViewModelFactory
+import com.example.flavorfinder.view.CameraActivity
+import com.example.flavorfinder.view.ui.signin.SigninActivity
 import com.example.flavorfinder.view.ui.home.HomeFragment
 import com.example.flavorfinder.view.ui.profile.ProfileActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
+    private val viewModel by viewModels<MainViewModel> {
+        ViewModelFactory.getInstance(this)
+    }
 
     private lateinit var binding: ActivityMainBinding
 
@@ -23,6 +30,7 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
         with(binding) {
             searchView.setupWithSearchBar(searchBar)
             searchBar.inflateMenu(R.menu.search_bar_menu)
@@ -36,6 +44,8 @@ class MainActivity : AppCompatActivity() {
                     else -> false
                 }
             }
+
+            observeSession()
 
             // Handle search input using setOnEditorActionListener
             searchView.editText.setOnEditorActionListener { textView, actionId, event ->
@@ -72,6 +82,15 @@ class MainActivity : AppCompatActivity() {
     private fun setUpCameraButton(){
         binding.floatingActionButton.setOnClickListener {
             startActivity(Intent(this, CameraActivity::class.java))
+        }
+    }
+
+    private fun observeSession() {
+        viewModel.getSession().observe(this) { user ->
+            if (!user.isLogin) {
+                startActivity(Intent(this, SigninActivity::class.java))
+                finish()
+            }
         }
     }
 }

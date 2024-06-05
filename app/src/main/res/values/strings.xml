@@ -26,4 +26,6 @@
     <string name="instruction">Instruction:</string>
     <string name="bookmark">Bookmark</string>
     <string name="watch_here">Watch here</string>
+    <string name="name">Name</string>
+    <string name="username_or_email">Username or Email</string>
 </resources>
