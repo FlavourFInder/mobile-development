@@ -133,7 +133,8 @@ class CameraActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = apiService.uploadImage(payload)
-                Log.d(TAG, "Upload success: ${response.message}")
+                val result = response.message ?: "Unable to detect ingredients"
+                Log.d(TAG, "Upload success: $result")
                 runOnUiThread {
                     Toast.makeText(baseContext, "Upload success: ${response.message}", Toast.LENGTH_SHORT).show()
                 }

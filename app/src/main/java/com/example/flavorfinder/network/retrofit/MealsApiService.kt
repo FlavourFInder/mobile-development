@@ -1,5 +1,6 @@
 package com.example.flavorfinder.network.retrofit
 
+import com.example.flavorfinder.network.response.FilterIngredientResponse
 import com.example.flavorfinder.network.response.MealsResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -16,4 +17,9 @@ interface MealsApiService {
     suspend fun searchMeals(
         @Query("s") query: String
     ): MealsResponse
+
+    @GET("filter.php")
+    suspend fun filterMeals(
+        @Query("i") ingredient: String
+    ): FilterIngredientResponse
 }
