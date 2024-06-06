@@ -1,14 +1,19 @@
 package com.example.flavorfinder.view
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,6 +36,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.ExecutorService
@@ -42,6 +48,28 @@ class CameraActivity : AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
+
+    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            val uri: Uri? = data?.data
+            uri?.let {
+                try {
+                    val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        val source = ImageDecoder.createSource(contentResolver, uri)
+                        ImageDecoder.decodeBitmap(source)
+                    } else {
+                        MediaStore.Images.Media.getBitmap(contentResolver, uri)
+                    }
+                    val base64String = bitmapToBase64(bitmap)
+                    uploadImage(base64String)
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,8 +88,10 @@ class CameraActivity : AppCompatActivity() {
         }
 
         binding.cameraButton.setOnClickListener { takePhoto() }
+        binding.galleryButton.setOnClickListener { openGallery() }
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
+
     }
 
     private val requestPermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
@@ -98,6 +128,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun takePhoto() {
+
         val imageCapture = imageCapture ?: return
         val photoFile = File(
             outputDirectory,
@@ -134,11 +165,15 @@ class CameraActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val response = apiService.uploadImage(payload)
-                val result = response.message ?: "Unable to detect ingredients"
+                val result = response.message
                 Log.d(TAG, "Upload success: $result")
                 runOnUiThread {
                     Toast.makeText(baseContext, "Upload success: ${response.message}", Toast.LENGTH_SHORT).show()
-                    navigateToFilterResult(result)
+                    if (result != null){
+                        if (result != "Unable to detect ingredients") {
+                            navigateToFilterResult(result)
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Upload failed", e)
@@ -174,7 +209,7 @@ class CameraActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "CameraActivity"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)
     }
 
     private fun getCompressedBitmap(filePath: String, maxWidth: Int, maxHeight: Int, quality: Int): Bitmap {
@@ -215,4 +250,10 @@ class CameraActivity : AppCompatActivity() {
         val byteArray = byteArrayOutputStream.toByteArray()
         return Base64.encodeToString(byteArray, Base64.NO_WRAP)
     }
+
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        galleryLauncher.launch(intent)
+    }
+
 }
