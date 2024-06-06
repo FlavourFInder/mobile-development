@@ -161,6 +161,7 @@ class CameraActivity : AppCompatActivity() {
     private fun uploadImage(base64String: String) {
         val apiService = ApiConfigML.getApiService()
         val payload = ImagePayload(base64String)
+        showLoading(true)
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -168,6 +169,7 @@ class CameraActivity : AppCompatActivity() {
                 val result = response.message
                 Log.d(TAG, "Upload success: $result")
                 runOnUiThread {
+                    showLoading(false)
                     Toast.makeText(baseContext, "Upload success: ${response.message}", Toast.LENGTH_SHORT).show()
                     if (result != null){
                         if (result != "Unable to detect ingredients") {
@@ -176,6 +178,7 @@ class CameraActivity : AppCompatActivity() {
                     }
                 }
             } catch (e: Exception) {
+                showLoading(false)
                 Log.e(TAG, "Upload failed", e)
                 runOnUiThread {
                     Toast.makeText(baseContext, "Upload failed", Toast.LENGTH_SHORT).show()
@@ -256,4 +259,11 @@ class CameraActivity : AppCompatActivity() {
         galleryLauncher.launch(intent)
     }
 
+    private fun showLoading(isLoading: Boolean) {
+        if (isLoading) {
+            binding.progressBar.visibility = View.VISIBLE
+        } else {
+            binding.progressBar.visibility = View.GONE
+        }
+    }
 }
