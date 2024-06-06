@@ -63,8 +63,8 @@ class SigninActivity : AppCompatActivity() {
 
     private fun setUpButton(){
         binding.loginButton.setOnClickListener {
-            val identifier = binding.emailOrUsernameEditText.text.toString()
-            val password = binding.passwordEditText.text.toString()
+            val identifier = binding.emailOrUsernameEditText.text.toString().trim()
+            val password = binding.passwordEditText.text.toString().trim()
 
             viewModel.login(identifier, password).observe(this) {
                 when (it) {

@@ -38,10 +38,10 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun setUpButton(){
         binding.registerButton.setOnClickListener {
-            val name = binding.nameEditText.text.toString()
-            val email = binding.emailEditText.text.toString()
-            val password = binding.passwordEditText.text.toString()
-            val confirmPassword = binding.confirmPasswordEditText.text.toString()
+            val name = binding.nameEditText.text.toString().trim()
+            val email = binding.emailEditText.text.toString().trim()
+            val password = binding.passwordEditText.text.toString().trim()
+            val confirmPassword = binding.confirmPasswordEditText.text.toString().trim()
 
             if (!isFormValid(name, email, password)) {
                 showToast("Field tidak boleh kosong")
