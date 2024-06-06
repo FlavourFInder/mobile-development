@@ -14,6 +14,10 @@ class SearchResultAdapter(private val meals: List<MealsItem>) : RecyclerView.Ada
 
     private lateinit var onItemClickCallback: OnItemClickCallback
 
+    fun setOnItemClickCallback(onItemClickCallback: OnItemClickCallback) {
+        this.onItemClickCallback = onItemClickCallback
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemCardHomeBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
@@ -27,7 +31,9 @@ class SearchResultAdapter(private val meals: List<MealsItem>) : RecyclerView.Ada
             .into(holder.binding.ivItemCard)
         holder.binding.tvItemCard.text = meal.strMeal
         holder.itemView.setOnClickListener {
-            onItemClickCallback.onItemClicked(meal)
+            if (::onItemClickCallback.isInitialized) {
+                onItemClickCallback.onItemClicked(meal)
+            }
         }
     }
 
@@ -35,9 +41,5 @@ class SearchResultAdapter(private val meals: List<MealsItem>) : RecyclerView.Ada
 
     interface OnItemClickCallback {
         fun onItemClicked(data: MealsItem)
-    }
-
-    fun setOnItemClickCallback(onItemClickCallback: OnItemClickCallback) {
-        this.onItemClickCallback = onItemClickCallback
     }
 }

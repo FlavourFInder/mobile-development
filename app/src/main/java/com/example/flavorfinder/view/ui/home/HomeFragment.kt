@@ -32,9 +32,7 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val root: View = binding.root
-
-        return root
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,6 +65,11 @@ class HomeFragment : Fragment() {
         homeViewModel.searchResults.observe(viewLifecycleOwner) { meals ->
             if (meals != null) {
                 searchResultAdapter = SearchResultAdapter(meals)
+                searchResultAdapter?.setOnItemClickCallback(object : SearchResultAdapter.OnItemClickCallback {
+                    override fun onItemClicked(data: MealsItem) {
+                        detailMenu(data)
+                    }
+                })
                 binding.rvHome.adapter = searchResultAdapter
                 searchResultAdapter?.notifyDataSetChanged()
             }
@@ -78,7 +81,6 @@ class HomeFragment : Fragment() {
         intent.putExtra("data", data)
         startActivity(intent)
     }
-
 
     private fun getData() {
         homeViewModel.meal.observe(viewLifecycleOwner) {
@@ -92,4 +94,3 @@ class HomeFragment : Fragment() {
         homeViewModel.searchMeals(query)
     }
 }
-
