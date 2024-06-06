@@ -1,6 +1,7 @@
 package com.example.flavorfinder.view
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -137,6 +138,7 @@ class CameraActivity : AppCompatActivity() {
                 Log.d(TAG, "Upload success: $result")
                 runOnUiThread {
                     Toast.makeText(baseContext, "Upload success: ${response.message}", Toast.LENGTH_SHORT).show()
+                    navigateToFilterResult(result)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Upload failed", e)
@@ -145,6 +147,12 @@ class CameraActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun navigateToFilterResult(result: String) {
+        val intent = Intent(this, FilterResultActivity::class.java)
+        intent.putExtra("result", result)
+        startActivity(intent)
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {

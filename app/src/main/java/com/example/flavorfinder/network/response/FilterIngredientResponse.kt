@@ -1,6 +1,8 @@
 package com.example.flavorfinder.network.response
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
 data class FilterIngredientResponse(
 
@@ -8,6 +10,7 @@ data class FilterIngredientResponse(
 	val meals: List<MealsItem?>? = null
 )
 
+@Parcelize
 data class FilterItem(
 
 	@field:SerializedName("strMealThumb")
@@ -18,4 +21,4 @@ data class FilterItem(
 
 	@field:SerializedName("strMeal")
 	val strMeal: String? = null
-)
+) : Parcelable

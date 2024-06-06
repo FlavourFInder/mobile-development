@@ -9,6 +9,7 @@ import androidx.paging.liveData
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.network.MealPagingSource
 import com.example.flavorfinder.network.response.Data
+import com.example.flavorfinder.network.response.FilterIngredientResponse
 import com.example.flavorfinder.network.response.LoginData
 import com.example.flavorfinder.network.response.LoginResponse
 import com.example.flavorfinder.network.response.MealsItem
@@ -21,7 +22,8 @@ import com.example.flavorfinder.pref.UserModel
 import com.example.flavorfinder.pref.UserPreference
 import kotlinx.coroutines.flow.Flow
 
-class MealRepository(private val mealsApiService: MealsApiService,
+class MealRepository(
+    private val mealsApiService: MealsApiService,
     private val authApiService: AuthApiService,
     private val userPreference: UserPreference) {
 
@@ -64,6 +66,10 @@ class MealRepository(private val mealsApiService: MealsApiService,
 
     suspend fun searchMeals(query: String): MealsResponse {
         return mealsApiService.searchMeals(query)
+    }
+
+    suspend fun getFilterMenu(ingredient: String): FilterIngredientResponse {
+        return mealsApiService.filterMeals(ingredient)
     }
 
 

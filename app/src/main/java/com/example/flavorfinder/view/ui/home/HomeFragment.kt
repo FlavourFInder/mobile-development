@@ -89,7 +89,6 @@ class HomeFragment : Fragment() {
         }
     }
 
-    // New method to handle search
     fun performSearch(query: String) {
         homeViewModel.searchMeals(query)
     }
