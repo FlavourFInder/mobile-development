@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.ActivityFilterResultBinding
 import com.example.flavorfinder.network.response.FilterItem
+import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.view.ui.adapter.FilteredMealListAdapter
 import com.example.flavorfinder.view.ui.detail.DetailActivity
 import com.example.flavorfinder.di.Injection
@@ -40,10 +41,8 @@ class FilterResultActivity : AppCompatActivity() {
 
         setupRecyclerView()
 
-        // Initialize repository using Injection
         repository = Injection.provideRepository(this)
 
-        // Get the result passed from CameraActivity
         val result = intent.getStringExtra("result") ?: ""
         if (result.isNotEmpty()) {
             fetchFilterResults(result)
@@ -58,7 +57,7 @@ class FilterResultActivity : AppCompatActivity() {
         }
         mealListAdapter.setOnItemClickCallback(object : FilteredMealListAdapter.OnItemClickCallback {
             override fun onItemClicked(data: FilterItem) {
-                detailMenu(data)
+                data.idMeal?.let { lookupMealDetails(it) }
             }
         })
     }
@@ -93,9 +92,33 @@ class FilterResultActivity : AppCompatActivity() {
         }
     }
 
-    private fun detailMenu(data: FilterItem) {
+    private fun lookupMealDetails(mealId: String) {
+        val mealRepository = repository ?: return
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = mealRepository.lookupMeals(mealId)
+                val mealItem = response.meals.firstOrNull()
+                if (mealItem != null) {
+                    withContext(Dispatchers.Main) {
+                        navigateToDetailActivity(mealItem)
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@FilterResultActivity, "Meal details not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Lookup meal details failed", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@FilterResultActivity, "Lookup meal details failed", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun navigateToDetailActivity(mealItem: MealsItem) {
         val intent = Intent(this, DetailActivity::class.java)
-        intent.putExtra("data", data)
+        intent.putExtra("data", mealItem)
         startActivity(intent)
     }
 

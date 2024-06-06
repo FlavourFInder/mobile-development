@@ -22,4 +22,9 @@ interface MealsApiService {
     suspend fun filterMeals(
         @Query("i") ingredient: String
     ): FilterIngredientResponse
+
+    @GET("lookup.php")
+    suspend fun lookupMeals(
+        @Query("i") query: String
+    ): MealsResponse
 }

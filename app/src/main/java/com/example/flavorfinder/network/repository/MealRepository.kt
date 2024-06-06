@@ -21,9 +21,11 @@ import com.example.flavorfinder.pref.UserPreference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 
-class MealRepository(private val mealsApiService: MealsApiService,
+class MealRepository(
+    private val mealsApiService: MealsApiService,
     private val authApiService: AuthApiService,
-    private val userPreference: UserPreference) {
+    private val userPreference: UserPreference
+) {
 
     fun register(name: String, email: String, password: String): LiveData<Result<RegisterResponse>> = liveData {
         emit(Result.Loading)
@@ -39,8 +41,7 @@ class MealRepository(private val mealsApiService: MealsApiService,
         emit(Result.Loading)
         try {
             val response = authApiService.login(identifier, password)
-            userPreference.saveSession(UserModel(identifier,  response.data.token, true))
-//            authApiService = ApiConfig.getAuthApiService(response.token)
+            userPreference.saveSession(UserModel(identifier, response.data.token, true))
             emit(Result.Succes(response))
         } catch (e: Exception) {
             emit(Result.Error(e.message.toString()))
@@ -81,6 +82,10 @@ class MealRepository(private val mealsApiService: MealsApiService,
         }
     }
 
+    suspend fun lookupMeals(mealId: String): MealsResponse {
+        return mealsApiService.lookupMeals(mealId)
+    }
+
     suspend fun logout() {
         userPreference.logout()
     }
@@ -96,6 +101,5 @@ class MealRepository(private val mealsApiService: MealsApiService,
             instance ?: synchronized(this) {
                 instance ?: MealRepository(apiService, authApiService, userPreference)
             }.also { instance = it }
-
     }
 }

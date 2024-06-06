@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity() {
 
             observeSession()
 
-            // Handle search input using setOnEditorActionListener
             searchView.editText.setOnEditorActionListener { textView, actionId, event ->
                 searchBar.setText(searchView.text)
                 searchView.hide()

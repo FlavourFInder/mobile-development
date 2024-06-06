@@ -30,7 +30,6 @@ class FilterIngredientViewModel(private val mealRepository: MealRepository) : Vi
         }
     }
 
-    // Extension function to map MealsItem to FilterItem
     private fun MealsItem.toFilterItem(): FilterItem {
         return FilterItem(
             strMealThumb = this.strMealThumb,

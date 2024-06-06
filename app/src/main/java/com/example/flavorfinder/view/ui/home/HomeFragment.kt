@@ -66,7 +66,6 @@ class HomeFragment : Fragment() {
     private fun observeViewModel() {
         homeViewModel.searchResults.observe(viewLifecycleOwner) { meals ->
             if (meals != null) {
-                // Switch to the search result adapter
                 searchResultAdapter = SearchResultAdapter(meals)
                 binding.rvHome.adapter = searchResultAdapter
                 searchResultAdapter?.notifyDataSetChanged()
