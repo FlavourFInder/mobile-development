@@ -1,28 +1,35 @@
 package com.example.flavorfinder.view.ui.detail
 
-import android.graphics.Color
 import android.os.Bundle
-import android.provider.CalendarContract.Colors
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.ActivityDetailBinding
+import com.example.flavorfinder.di.Injection
+import com.example.flavorfinder.helper.Result
+import com.example.flavorfinder.helper.ViewModelFactory
+import com.example.flavorfinder.network.repository.MealRepository
 import com.example.flavorfinder.network.response.MealsItem
+import com.example.flavorfinder.pref.UserPreference
+import com.example.flavorfinder.pref.dataStore
 import com.example.flavorfinder.view.ui.adapter.IngredientAdapter
-import com.example.flavorfinder.view.ui.adapter.MealListAdapter
 
-class DetailActivity : AppCompatActivity() {
+class DetailActivity() : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailBinding
     private lateinit var ingredientAdapter: IngredientAdapter
+    private val viewModel by viewModels<DetailViewModel> {
+        ViewModelFactory.getInstance(this)
+    }
+    private lateinit var repository: MealRepository
+    private lateinit var userPreference: UserPreference
+    private var recipeId: Int? = 0
+    private var isBookmarked = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,13 +43,27 @@ class DetailActivity : AppCompatActivity() {
 //            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
 //            insets
 //        }
+        userPreference = UserPreference.getInstance(dataStore)
+        repository = Injection.provideRepository(this) ?: throw IllegalStateException("Repository not initialized")
+
 
         val result = intent.getParcelableExtra<MealsItem>("data")
         if (result != null) {
+            recipeId = result.idMeal?.toInt()
             setupDetailMenu(result)
+
         } else {
             showToast("Failed to load data")
         }
+
+        viewModel.bookmarkResult.observe(this) { result ->
+            when (result) {
+                is Result.Succes -> showToast("Bookmark added!")
+                is Result.Error -> showToast(result.error)
+                is Result.Loading -> showToast("Loading...")
+            }
+        }
+
     }
 
     private fun setupDetailMenu(items: MealsItem) {
@@ -66,7 +87,6 @@ class DetailActivity : AppCompatActivity() {
             tvInstruction.text = items.strInstructions
             tvCategory.text = items.strCategory
             tvCountry.text = items.strArea
-
         }
     }
 
@@ -78,7 +98,7 @@ class DetailActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_bookmark -> {
-                showToast("Bookmark clicked")
+                recipeId?.let { viewModel.addBookmark(it) } ?: showToast("Recipe ID is not available")
                 true
             }
             else -> super.onOptionsItemSelected(item)

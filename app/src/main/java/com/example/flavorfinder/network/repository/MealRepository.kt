@@ -8,22 +8,20 @@ import androidx.paging.PagingData
 import androidx.paging.liveData
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.network.MealPagingSource
-import com.example.flavorfinder.network.response.Data
 import com.example.flavorfinder.network.response.FilterIngredientResponse
-import com.example.flavorfinder.network.response.LoginData
 import com.example.flavorfinder.network.response.LoginResponse
 import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.network.response.MealsResponse
+import com.example.flavorfinder.network.response.PostBookmarkResponse
 import com.example.flavorfinder.network.response.RegisterResponse
-import com.example.flavorfinder.network.retrofit.ApiConfig
 import com.example.flavorfinder.network.retrofit.AuthApiService
 import com.example.flavorfinder.network.retrofit.MealsApiService
 import com.example.flavorfinder.pref.UserModel
 import com.example.flavorfinder.pref.UserPreference
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
-class MealRepository(
-    private val mealsApiService: MealsApiService,
+class MealRepository(private val mealsApiService: MealsApiService,
     private val authApiService: AuthApiService,
     private val userPreference: UserPreference) {
 
@@ -72,6 +70,16 @@ class MealRepository(
         return mealsApiService.filterMeals(ingredient)
     }
 
+    fun addBookmark(recipeId: Int): LiveData<Result<PostBookmarkResponse>> = liveData {
+        emit(Result.Loading)
+        try {
+            val token = userPreference.getSession().first().token
+            val response = authApiService.addBookmark("Bearer $token", mapOf("recipeId" to recipeId))
+            emit(Result.Succes(response))
+        } catch (e: Exception) {
+            emit(Result.Error(e.message.toString()))
+        }
+    }
 
     suspend fun logout() {
         userPreference.logout()

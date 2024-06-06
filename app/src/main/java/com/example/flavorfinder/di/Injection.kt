@@ -5,18 +5,17 @@ import com.example.flavorfinder.network.repository.MealRepository
 import com.example.flavorfinder.network.retrofit.ApiConfig
 import com.example.flavorfinder.pref.UserPreference
 import com.example.flavorfinder.pref.dataStore
-import com.example.flavorfinder.view.ui.home.HomeFragment
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 object Injection {
-    fun provideRepository(context: Context): MealRepository? {
+    fun provideRepository(context: Context): MealRepository {
         val pref = UserPreference.getInstance(context.dataStore)
         val user = runBlocking { pref.getSession().first() }
         val authApiService = ApiConfig.getAuthApiService()
         val mealsApiService = user?.token?.let {
             ApiConfig.getMealsApiService(it)
-        }
-        return mealsApiService?.let { MealRepository.getInstance(it, authApiService, pref) }
+        } ?: throw IllegalStateException("User token not found")
+        return MealRepository.getInstance(mealsApiService, authApiService, pref)
     }
 }
