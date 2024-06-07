@@ -2,7 +2,6 @@ package com.example.flavorfinder.view.ui.dashboard
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +15,6 @@ import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.ViewModelFactory
 import com.example.flavorfinder.network.repository.MealRepository
 import com.example.flavorfinder.network.response.GetBookmarkRecipe
-import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.pref.UserPreference
 import com.example.flavorfinder.pref.dataStore
 import com.example.flavorfinder.view.ui.adapter.BookmarkListAdapter
@@ -63,12 +61,6 @@ class DashboardFragment : Fragment() {
         }
     }
 
-    private fun detailMenu(data: MealsItem) {
-        val intent = Intent(requireContext(), DetailActivity::class.java)
-        intent.putExtra("data", data)
-        startActivity(intent)
-    }
-
     private fun observeViewModel() {
         viewModel.bookmarks.observe(viewLifecycleOwner) { result ->
             when (result) {
@@ -89,33 +81,15 @@ class DashboardFragment : Fragment() {
         }
         bookmarkListAdapter.setOnItemClickCallback(object : BookmarkListAdapter.OnItemClickCallback {
             override fun onItemClick(data: GetBookmarkRecipe) {
-                data.idMeal.let { lookupMealDetails(it) }
+                navigateToDetailActivity(data)
             }
         })
     }
 
-    private fun lookupMealDetails(mealId: String) {
-        val mealRepository = repository ?: return
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val response = mealRepository.lookupMeals(mealId)
-                val mealItem = response.meals.firstOrNull()
-                if (mealItem != null) {
-                    withContext(Dispatchers.Main) {
-                        detailMenu(mealItem)
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
-                        showToast("meal detail not found")
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e(DashboardFragment.TAG, "Lookup meal details failed", e)
-                withContext(Dispatchers.Main) {
-                    showToast("Lookup meal detail failed")
-                }
-            }
-        }
+    private fun navigateToDetailActivity(bookmarkRecipe: GetBookmarkRecipe) {
+        val intent = Intent(requireContext(), DetailActivity::class.java)
+        intent.putExtra("bookmark", bookmarkRecipe)
+        startActivity(intent)
     }
 
     private fun showToast(message: String) {

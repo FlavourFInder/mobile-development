@@ -14,12 +14,17 @@ import com.example.flavorfinder.di.Injection
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.ViewModelFactory
 import com.example.flavorfinder.network.repository.MealRepository
+import com.example.flavorfinder.network.response.GetBookmarkRecipe
 import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.pref.UserPreference
 import com.example.flavorfinder.pref.dataStore
 import com.example.flavorfinder.view.ui.adapter.IngredientAdapter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class DetailActivity() : AppCompatActivity() {
+class DetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailBinding
     private lateinit var ingredientAdapter: IngredientAdapter
@@ -34,24 +39,21 @@ class DetailActivity() : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityDetailBinding.inflate(layoutInflater)
-//        enableEdgeToEdge()
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
-//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-//            insets
-//        }
         userPreference = UserPreference.getInstance(dataStore)
         repository = Injection.provideRepository(this) ?: throw IllegalStateException("Repository not initialized")
 
+        val mealItem = intent.getParcelableExtra<MealsItem>("data")
+        val bookmarkRecipe = intent.getParcelableExtra<GetBookmarkRecipe>("bookmark")
 
-        val result = intent.getParcelableExtra<MealsItem>("data")
-        if (result != null) {
-            recipeId = result.idMeal?.toInt()
-            setupDetailMenu(result)
-
+        if (mealItem != null) {
+            recipeId = mealItem.idMeal?.toInt()
+            setupDetailMenu(mealItem)
+        } else if (bookmarkRecipe != null) {
+            recipeId = bookmarkRecipe.idMeal?.toInt()
+            fetchAndSetupDetailMenu(bookmarkRecipe.idMeal)
         } else {
             showToast("Failed to load data")
         }
@@ -63,7 +65,30 @@ class DetailActivity() : AppCompatActivity() {
                 is Result.Loading -> showToast("Loading...")
             }
         }
+    }
 
+    private fun fetchAndSetupDetailMenu(mealId: String?) {
+        if (mealId == null) return
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = repository.lookupMeals(mealId)
+                val mealItem = response.meals.firstOrNull()
+                if (mealItem != null) {
+                    withContext(Dispatchers.Main) {
+                        setupDetailMenu(mealItem)
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        showToast("Meal details not found")
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    showToast("Lookup meal details failed")
+                }
+            }
+        }
     }
 
     private fun setupDetailMenu(items: MealsItem) {
@@ -108,5 +133,4 @@ class DetailActivity() : AppCompatActivity() {
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
-
 }
