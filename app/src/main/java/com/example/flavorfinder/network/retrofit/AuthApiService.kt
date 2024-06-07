@@ -1,5 +1,6 @@
 package com.example.flavorfinder.network.retrofit
 
+import com.example.flavorfinder.network.response.DeleteBookmarkResponse
 import com.example.flavorfinder.network.response.GetBookmarkResponse
 import com.example.flavorfinder.network.response.LoginResponse
 import com.example.flavorfinder.network.response.PostBookmarkResponse
@@ -30,7 +31,9 @@ interface AuthApiService {
     ): LoginResponse
 
     @GET("bookmark")
-    suspend fun getBookmark(): GetBookmarkResponse
+    suspend fun getBookmark(
+        @Header("Authorization") token: String
+    ): GetBookmarkResponse
 
     @POST("bookmark")
     suspend fun addBookmark(
@@ -42,6 +45,6 @@ interface AuthApiService {
     suspend fun deleteBookmark(
         @Header("Authorization") token: String,
         @Path("bookmarkId") bookmarkId: String
-    ): PostBookmarkResponse
+    ): DeleteBookmarkResponse
 
 }

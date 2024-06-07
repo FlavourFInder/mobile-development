@@ -1,6 +1,8 @@
 package com.example.flavorfinder.network.response
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
 data class GetBookmarkResponse(
 
@@ -23,16 +25,17 @@ data class DataItem(
 	val userId: String,
 
 	@field:SerializedName("recipe")
-	val recipe: Recipe,
+	val recipe: GetBookmarkRecipe,
 
 	@field:SerializedName("time")
 	val time: String
 )
 
+@Parcelize
 data class GetBookmarkRecipe(
 
 	@field:SerializedName("strImageSource")
-	val strImageSource: Any,
+	val strImageSource: String,
 
 	@field:SerializedName("strIngredient10")
 	val strIngredient10: String,
@@ -68,13 +71,13 @@ data class GetBookmarkRecipe(
 	val strArea: String,
 
 	@field:SerializedName("strCreativeCommonsConfirmed")
-	val strCreativeCommonsConfirmed: Any,
+	val strCreativeCommonsConfirmed: String,
 
 	@field:SerializedName("strIngredient19")
 	val strIngredient19: String,
 
 	@field:SerializedName("strTags")
-	val strTags: Any,
+	val strTags: String,
 
 	@field:SerializedName("idMeal")
 	val idMeal: String,
@@ -137,10 +140,10 @@ data class GetBookmarkRecipe(
 	val strMeasure11: String,
 
 	@field:SerializedName("dateModified")
-	val dateModified: Any,
+	val dateModified: String,
 
 	@field:SerializedName("strDrinkAlternate")
-	val strDrinkAlternate: Any,
+	val strDrinkAlternate: String,
 
 	@field:SerializedName("strSource")
 	val strSource: String,
@@ -189,4 +192,4 @@ data class GetBookmarkRecipe(
 
 	@field:SerializedName("strMeasure15")
 	val strMeasure15: String
-)
+): Parcelable

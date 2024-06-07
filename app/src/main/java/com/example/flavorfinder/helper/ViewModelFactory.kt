@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.flavorfinder.di.Injection
 import com.example.flavorfinder.network.repository.MealRepository
+import com.example.flavorfinder.view.ui.dashboard.DashboardViewModel
 import com.example.flavorfinder.view.ui.detail.DetailViewModel
 import com.example.flavorfinder.view.ui.main.MainViewModel
 import com.example.flavorfinder.view.ui.register.RegisterViewModel
@@ -34,6 +35,9 @@ class ViewModelFactory(private val repository: MealRepository): ViewModelProvide
             }
             modelClass.isAssignableFrom(DetailViewModel::class.java) -> {
                 DetailViewModel(repository) as T
+            }
+            modelClass.isAssignableFrom(DashboardViewModel::class.java) -> {
+                DashboardViewModel(repository) as T
             }
             else -> throw IllegalArgumentException("Unknown ViewModel")
         }

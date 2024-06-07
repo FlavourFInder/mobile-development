@@ -8,7 +8,9 @@ import androidx.paging.PagingData
 import androidx.paging.liveData
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.network.MealPagingSource
+import com.example.flavorfinder.network.response.DeleteBookmarkResponse
 import com.example.flavorfinder.network.response.FilterIngredientResponse
+import com.example.flavorfinder.network.response.GetBookmarkResponse
 import com.example.flavorfinder.network.response.LoginResponse
 import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.network.response.MealsResponse
@@ -84,6 +86,36 @@ class MealRepository(
 
     suspend fun lookupMeals(mealId: String): MealsResponse {
         return mealsApiService.lookupMeals(mealId)
+    }
+
+    suspend fun getBookmark(): Result<GetBookmarkResponse> {
+        return try {
+            val token = userPreference.getSession().first().token
+            val response = authApiService.getBookmark("Bearer $token")
+            Result.Succes(response)
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "An error occured")
+        }
+    }
+
+    suspend fun deleteBookmark(bookmarkId: String): Result<DeleteBookmarkResponse> {
+        return try {
+            val token = userPreference.getSession().first().token
+            val response = authApiService.deleteBookmark("Bearer $token", bookmarkId)
+            Result.Succes(response)
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "An error occured")
+        }
+    }
+
+    suspend fun isBookmarked(recipeId: Int): Boolean {
+        return try {
+            val token = userPreference.getSession().first().token
+            val response = authApiService.getBookmark("Bearer $token")
+            response.data.any { it.recipe.idMeal == recipeId.toString() }
+        } catch (e: Exception) {
+            false
+        }
     }
 
     suspend fun logout() {
