@@ -172,7 +172,9 @@ class CameraActivity : AppCompatActivity() {
                     showLoading(false)
                     Toast.makeText(baseContext, "Upload success: ${response.message}", Toast.LENGTH_SHORT).show()
                     if (result != null){
-                        if (result != "Unable to detect ingredients") {
+                        if (result == "Unable to detect ingredients") {
+                            Toast.makeText(this@CameraActivity, "Unable to detect ingredients", Toast.LENGTH_SHORT).show()
+                        } else {
                             navigateToFilterResult(result)
                         }
                     }
