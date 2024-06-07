@@ -71,6 +71,19 @@ class CameraActivity : AppCompatActivity() {
         }
     }
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                Toast.makeText(this, "Permission request granted", Toast.LENGTH_LONG).show()
+                startCamera()
+            } else {
+                Toast.makeText(this, "Permission request denied", Toast.LENGTH_LONG).show()
+                finish()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCameraBinding.inflate(layoutInflater)
@@ -84,23 +97,13 @@ class CameraActivity : AppCompatActivity() {
         if (allPermissionsGranted()) {
             startCamera()
         } else {
-            requestPermissions.launch(REQUIRED_PERMISSIONS)
+            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
 
         binding.cameraButton.setOnClickListener { takePhoto() }
         binding.galleryButton.setOnClickListener { openGallery() }
         outputDirectory = getOutputDirectory()
         cameraExecutor = Executors.newSingleThreadExecutor()
-
-    }
-
-    private val requestPermissions = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-        if (permissions.all { it.value }) {
-            startCamera()
-        } else {
-            Toast.makeText(this, "Permissions not granted by the user.", Toast.LENGTH_SHORT).show()
-            finish()
-        }
     }
 
     private fun startCamera() {
@@ -128,7 +131,6 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun takePhoto() {
-
         val imageCapture = imageCapture ?: return
         val photoFile = File(
             outputDirectory,
@@ -149,7 +151,7 @@ class CameraActivity : AppCompatActivity() {
                     Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
 
-                    val compressedBitmap = getCompressedBitmap(photoFile.path, 800, 800, 80)  // Adjust resolution and quality as needed
+                    val compressedBitmap = getCompressedBitmap(photoFile.path, 800, 800, 80)
                     val base64String = bitmapToBase64(compressedBitmap)
 
                     uploadImage(base64String)
@@ -195,10 +197,11 @@ class CameraActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
-        ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
-    }
-
+    private fun allPermissionsGranted() =
+        ContextCompat.checkSelfPermission(
+            this,
+            REQUIRED_PERMISSION
+        ) == PackageManager.PERMISSION_GRANTED
     private fun getOutputDirectory(): File {
         val mediaDir = externalMediaDirs.firstOrNull()?.let {
             File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
@@ -214,7 +217,7 @@ class CameraActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "CameraActivity"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
-        private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)
+        private const val REQUIRED_PERMISSION = Manifest.permission.CAMERA
     }
 
     private fun getCompressedBitmap(filePath: String, maxWidth: Int, maxHeight: Int, quality: Int): Bitmap {
