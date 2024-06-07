@@ -5,13 +5,14 @@ import com.google.gson.annotations.SerializedName
 data class PostBookmarkResponse(
 
 	@field:SerializedName("data")
-	val data: Data,
+	val data: DataPostBookmark,
 
 	@field:SerializedName("message")
 	val message: String,
 
 	@field:SerializedName("status")
-	val status: Int
+	val status: Int,
+
 )
 
 data class DataPostBookmark(

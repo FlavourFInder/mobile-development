@@ -12,8 +12,11 @@ import kotlinx.coroutines.launch
 
 class DetailViewModel(private val repository: MealRepository): ViewModel() {
 
-    private val _bookmarkResult = MutableLiveData<Result<PostBookmarkResponse>>()
-    val bookmarkResult: LiveData<Result<PostBookmarkResponse>> = _bookmarkResult
+    private val _bookmarkResult = MutableLiveData<Result<String>>()
+    val bookmarkResult: LiveData<Result<String>> = _bookmarkResult
+
+    private val _bookmarkId = MutableLiveData<String?>()
+    val bookmarkId: LiveData<String?> = _bookmarkId
 
     private val _deleteBookmarkResult = MutableLiveData<Result<DeleteBookmarkResponse>>()
     val deleteBookmarkResult: LiveData<Result<DeleteBookmarkResponse>> = _deleteBookmarkResult
@@ -21,30 +24,41 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
     private val _bookmarkStatus = MutableLiveData<Boolean>()
     val bookmarkStatus: LiveData<Boolean> = _bookmarkStatus
 
-    fun checkBookmarkStatus(recipeId: Int) {
+    fun checkIfBookmarked(recipeId: Int): LiveData<Result<String?>> {
+        val result = MutableLiveData<Result<String?>>()
         viewModelScope.launch {
             try {
-                val isBookmarked = repository.isBookmarked(recipeId)
-                _bookmarkStatus.value = isBookmarked
+                val bookmarks = repository.getBookmarks()
+                val bookmark = bookmarks.data.firstOrNull { it.recipe.idMeal?.toInt() == recipeId }
+                result.postValue(Result.Succes(bookmark?.bookmarkId))
             } catch (e: Exception) {
-                _bookmarkStatus.value = false
+                result.postValue(Result.Error(e.message ?: "Unknown error"))
             }
         }
+        return result
     }
 
     fun addBookmark(recipeId: Int) {
         viewModelScope.launch {
-            repository.addBookmark(recipeId).observeForever {
-                _bookmarkResult.value = it
+            _bookmarkResult.value = Result.Loading
+            try {
+                val response = repository.addBookmark(recipeId)
+                _bookmarkId.value = response.data.bookmarkId
+                _bookmarkResult.value = Result.Succes("Bookmark added!")
+            } catch (e: Exception) {
+                _bookmarkResult.value = Result.Error(e.message ?: "An error occured")
             }
+
         }
     }
 
     fun deleteBookmark(bookmarkId: String) {
         viewModelScope.launch {
+            _bookmarkResult.value = Result.Loading
             try {
-                val result = repository.deleteBookmark(bookmarkId)
-                _deleteBookmarkResult.value = result
+                repository.deleteBookmark(bookmarkId)
+                _bookmarkId.value = null
+                _bookmarkResult.value = Result.Succes("Bookmark deleted!")
             } catch (e: Exception) {
                 _deleteBookmarkResult.value = Result.Error(e.message ?: "An error occured")
             }

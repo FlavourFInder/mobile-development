@@ -1,6 +1,7 @@
 package com.example.flavorfinder.view.ui.detail
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -35,6 +36,7 @@ class DetailActivity : AppCompatActivity() {
     private lateinit var userPreference: UserPreference
     private var recipeId: Int? = 0
     private var isBookmarked = false
+    private var bookmarkId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,19 +53,30 @@ class DetailActivity : AppCompatActivity() {
         if (mealItem != null) {
             recipeId = mealItem.idMeal?.toInt()
             setupDetailMenu(mealItem)
+            checkIfBookmarked(recipeId!!)
         } else if (bookmarkRecipe != null) {
             recipeId = bookmarkRecipe.idMeal?.toInt()
             fetchAndSetupDetailMenu(bookmarkRecipe.idMeal)
+            checkIfBookmarked(bookmarkRecipe.idMeal?.toInt()!!)
         } else {
             showToast("Failed to load data")
         }
 
         viewModel.bookmarkResult.observe(this) { result ->
             when (result) {
-                is Result.Succes -> showToast("Bookmark added!")
+                is Result.Succes -> {
+                    isBookmarked = !isBookmarked
+                    invalidateOptionsMenu()
+                    showToast(result.data)
+                }
                 is Result.Error -> showToast(result.error)
                 is Result.Loading -> showToast("Loading...")
             }
+        }
+
+        viewModel.bookmarkId.observe(this) { bookmarkId ->
+            Log.d("DetailActivity", "Bookmark ID updates: $bookmarkId")
+            this.bookmarkId = bookmarkId
         }
     }
 
@@ -117,16 +130,41 @@ class DetailActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_detail, menu)
+        val bookmarkItem = menu?.findItem(R.id.action_bookmark)
+        bookmarkItem?.setIcon(if (isBookmarked) R.drawable.ic_bookmarked_circle else R.drawable.ic_bookmark_circle_background)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_bookmark -> {
-                recipeId?.let { viewModel.addBookmark(it) } ?: showToast("Recipe ID is not available")
+                Log.d("DetailActivity", "Bookmark clicked. isBookmarked: $isBookmarked, bookmarkId: $bookmarkId")
+                if (isBookmarked) {
+                    bookmarkId?.let {
+                        viewModel.deleteBookmark(it)
+                    } ?: showToast("Bookmark ID is not available")
+                } else {
+                    recipeId?.let {
+                        viewModel.addBookmark(it)
+                    } ?: showToast("Recipe ID is not available")
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun checkIfBookmarked(recipeId: Int) {
+        viewModel.checkIfBookmarked(recipeId).observe(this) { result ->
+            when (result) {
+                is Result.Succes -> {
+                    isBookmarked = result.data != null
+                    bookmarkId = result.data
+                    invalidateOptionsMenu()
+                }
+                is Result.Error -> showToast(result.error)
+                is Result.Loading -> showToast("Loading..")
+            }
         }
     }
 
