@@ -73,15 +73,20 @@ class MealRepository(
         return mealsApiService.filterMeals(ingredient)
     }
 
-    fun addBookmark(recipeId: Int): LiveData<Result<PostBookmarkResponse>> = liveData {
-        emit(Result.Loading)
-        try {
-            val token = userPreference.getSession().first().token
-            val response = authApiService.addBookmark("Bearer $token", mapOf("recipeId" to recipeId))
-            emit(Result.Succes(response))
-        } catch (e: Exception) {
-            emit(Result.Error(e.message.toString()))
-        }
+//    fun addBookmark(recipeId: Int): LiveData<Result<PostBookmarkResponse>> = liveData {
+//        emit(Result.Loading)
+//        try {
+//            val token = userPreference.getSession().first().token
+//            val response = authApiService.addBookmark("Bearer $token", mapOf("recipeId" to recipeId))
+//            emit(Result.Succes(response))
+//        } catch (e: Exception) {
+//            emit(Result.Error(e.message.toString()))
+//        }
+//    }
+
+    suspend fun addBookmark(recipeId: Int): PostBookmarkResponse {
+        val token = userPreference.getSession().first().token
+        return authApiService.addBookmark("Bearer $token", mapOf("recipeId" to recipeId))
     }
 
     suspend fun lookupMeals(mealId: String): MealsResponse {
@@ -98,24 +103,14 @@ class MealRepository(
         }
     }
 
-    suspend fun deleteBookmark(bookmarkId: String): Result<DeleteBookmarkResponse> {
-        return try {
-            val token = userPreference.getSession().first().token
-            val response = authApiService.deleteBookmark("Bearer $token", bookmarkId)
-            Result.Succes(response)
-        } catch (e: Exception) {
-            Result.Error(e.message ?: "An error occured")
-        }
+    suspend fun getBookmarks(): GetBookmarkResponse {
+        val token = userPreference.getSession().first().token
+        return authApiService.getBookmark("Bearer $token")
     }
 
-    suspend fun isBookmarked(recipeId: Int): Boolean {
-        return try {
-            val token = userPreference.getSession().first().token
-            val response = authApiService.getBookmark("Bearer $token")
-            response.data.any { it.recipe.idMeal == recipeId.toString() }
-        } catch (e: Exception) {
-            false
-        }
+    suspend fun deleteBookmark(bookmarkId: String){
+        val token = getSession().first().token
+        authApiService.deleteBookmark("Bearer $token", bookmarkId)
     }
 
     suspend fun logout() {
