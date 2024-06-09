@@ -19,6 +19,7 @@ import com.example.flavorfinder.pref.UserPreference
 import com.example.flavorfinder.pref.dataStore
 import com.example.flavorfinder.view.ui.adapter.BookmarkListAdapter
 import com.example.flavorfinder.view.ui.detail.DetailActivity
+import com.example.flavorfinder.view.ui.signin.SigninActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -65,10 +66,25 @@ class DashboardFragment : Fragment() {
         viewModel.bookmarks.observe(viewLifecycleOwner) { result ->
             when (result) {
                 is Result.Succes -> {
-                    bookmarkListAdapter.submitList(result.data.data.map { it.recipe })
+                    val bookmarks = result.data.data.map { it.recipe }
+                    if (bookmarks.isEmpty()) {
+                        binding.rvBookmark.visibility = View.GONE
+                        binding.tvNoItemBookmark.visibility = View.VISIBLE
+                        showLoading(false)
+                    } else {
+                        binding.rvBookmark.visibility = View.VISIBLE
+                        binding.tvNoItemBookmark.visibility = View.GONE
+                        bookmarkListAdapter.submitList(bookmarks)
+                        showLoading(false)
+                    }
                 }
-                is Result.Error -> showToast(result.error)
-                is Result.Loading -> showToast("Loading...")
+                is Result.Error -> {
+                    handleError(result.error)
+                    showLoading(false)
+                }
+                is Result.Loading -> {
+                    showLoading(true)
+                }
             }
         }
     }
@@ -92,8 +108,32 @@ class DashboardFragment : Fragment() {
         startActivity(intent)
     }
 
+    private fun handleError(errorMessage: String) {
+        when {
+            errorMessage.contains("403") -> {
+                lifecycleScope.launch {
+                    userPreference.logout()
+                    val intent = Intent(requireContext(), SigninActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                }
+            }
+            errorMessage.contains("404") -> {
+                binding.tvNoItemBookmark.visibility = View.VISIBLE
+            }
+            else -> {
+                showToast(errorMessage)
+            }
+        }
+        binding.rvBookmark.visibility = View.GONE
+    }
+
     private fun showToast(message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     override fun onDestroyView() {
