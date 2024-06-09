@@ -28,4 +28,7 @@
     <string name="watch_here">Watch here</string>
     <string name="name">Name</string>
     <string name="username_or_email">Username or Email</string>
+    <string name="no_items_bookmarked">No items bookmarked</string>
+    <string name="search">Search...</string>
+    <string name="greeting">Hi, User! Do you have something to cook?</string>
 </resources>

@@ -7,4 +7,5 @@
     <color name="orange500">#FFA62F</color>
     <color name="orange200">#FFC96F</color>
     <color name="transparent">#00000000</color>
+    <color name="grey">#434343</color>
 </resources>
