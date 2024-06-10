@@ -40,17 +40,6 @@ class SigninActivity : AppCompatActivity() {
             insets
         }
 
-        userPreference = UserPreference.getInstance(dataStore)
-
-        lifecycleScope.launch {
-            val user = userPreference.getUser()
-            if (user.isLogin) {
-                val intent = Intent(this@SigninActivity, MainActivity::class.java)
-                startActivity(intent)
-                finish()
-            }
-        }
-
         setUpTextViewButton()
         setUpButton()
     }
@@ -103,5 +92,10 @@ class SigninActivity : AppCompatActivity() {
 
     private fun showLoading() {
         binding.progressBar.visibility = View.VISIBLE
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+
     }
 }

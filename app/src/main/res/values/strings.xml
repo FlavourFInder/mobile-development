@@ -31,4 +31,7 @@
     <string name="no_items_bookmarked">No items bookmarked</string>
     <string name="search">Search...</string>
     <string name="greeting">Hi, User! Do you have something to cook?</string>
+    <string name="confirm_logout">Confirm Logout</string>
+    <string name="text_confirm_logout">Are you sure you want to logout?</string>
+    <string name="cancel">Cancel</string>
 </resources>

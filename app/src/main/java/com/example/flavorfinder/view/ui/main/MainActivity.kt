@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -13,11 +14,14 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.ActivityMainBinding
 import com.example.flavorfinder.helper.ViewModelFactory
+import com.example.flavorfinder.pref.UserPreference
+import com.example.flavorfinder.pref.dataStore
 import com.example.flavorfinder.view.CameraActivity
 import com.example.flavorfinder.view.ui.signin.SigninActivity
 import com.example.flavorfinder.view.ui.home.HomeFragment
 import com.example.flavorfinder.view.ui.profile.ProfileActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private val viewModel by viewModels<MainViewModel> {
@@ -28,7 +32,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
