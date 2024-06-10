@@ -51,8 +51,8 @@ class DashboardFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         userPreference = UserPreference.getInstance(requireContext().dataStore)
-        setupRecyclerView()
         observeViewModel()
+        setupRecyclerView()
 
         lifecycleScope.launch {
             val token = userPreference.getUser().token.first()

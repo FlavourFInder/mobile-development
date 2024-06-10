@@ -1,7 +1,11 @@
 package com.example.flavorfinder.view.ui.profile
 
+import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.ViewGroup
+import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -23,6 +27,10 @@ class ProfileActivity : AppCompatActivity() {
 
     private lateinit var userModel: UserModel
 
+    private lateinit var btnConfirmLogout: Button
+
+    private lateinit var btnCancel: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityProfileBinding.inflate(layoutInflater)
@@ -33,11 +41,30 @@ class ProfileActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        binding.btnLogout.setOnClickListener {
+
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.custom_dialog_logout)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
+        dialog.setCancelable(false)
+
+        btnCancel = dialog.findViewById(R.id.btn_cancel)
+        btnConfirmLogout = dialog.findViewById(R.id.btn_dialog_logout)
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnConfirmLogout.setOnClickListener {
             viewModel.logout()
             val intent = Intent(this, SigninActivity::class.java)
             startActivity(intent)
             finish()
+            dialog.dismiss()
+        }
+
+        binding.btnLogout.setOnClickListener {
+            dialog.show()
         }
 
 
