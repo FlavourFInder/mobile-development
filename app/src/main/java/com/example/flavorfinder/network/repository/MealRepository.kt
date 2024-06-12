@@ -8,6 +8,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.liveData
 import com.example.flavorfinder.helper.Result
+import com.example.flavorfinder.helper.reduceFileImage
 import com.example.flavorfinder.network.MealPagingSource
 import com.example.flavorfinder.network.response.DeleteBookmarkResponse
 import com.example.flavorfinder.network.response.FilterIngredientResponse
@@ -26,6 +27,12 @@ import com.example.flavorfinder.pref.UserModel
 import com.example.flavorfinder.pref.UserPreference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
 class MealRepository(
@@ -90,17 +97,6 @@ class MealRepository(
         return mealsApiService.filterMeals(ingredient)
     }
 
-//    fun addBookmark(recipeId: Int): LiveData<Result<PostBookmarkResponse>> = liveData {
-//        emit(Result.Loading)
-//        try {
-//            val token = userPreference.getSession().first().token
-//            val response = authApiService.addBookmark("Bearer $token", mapOf("recipeId" to recipeId))
-//            emit(Result.Succes(response))
-//        } catch (e: Exception) {
-//            emit(Result.Error(e.message.toString()))
-//        }
-//    }
-
     suspend fun addBookmark(recipeId: Int): PostBookmarkResponse {
         val token = userPreference.getSession().first().token
         return authApiService.addBookmark("Bearer $token", mapOf("recipeId" to recipeId))
@@ -141,6 +137,51 @@ class MealRepository(
             }
         } catch (e: Exception) {
             Result.Error(e.message ?: "An error occured")
+        }
+    }
+
+    suspend fun updateUsername(username: String): Result<GetUserProfileResponse> {
+        return try {
+            val token = userPreference.getUser().token
+            val userId = userPreference.getUser().userId
+
+            val usernameRequestBody = RequestBody.create("text/plain".toMediaType(), username)
+            val emptyFile = MultipartBody.Part.createFormData("file", "")
+
+            val response = authApiService.updateUserProfile(
+                "Bearer $token",
+                userId = userId,
+                profileImage = emptyFile,
+                username = usernameRequestBody
+            )
+            Result.Succes(response)
+        } catch (e: Exception) {
+            Result.Error(e.localizedMessage ?: "An error occured")
+        }
+    }
+
+    suspend fun updateProfilePicture(image: File?): Result<GetUserProfileResponse> {
+        return try {
+            val token = userPreference.getUser().token
+            val userId = userPreference.getUser().userId
+
+            val emptyUsername = "".toRequestBody("text/plain".toMediaTypeOrNull())
+            val imageFile = reduceFileImage(image!!)
+            val requestImageFile = imageFile.asRequestBody("image/jpeg".toMediaType())
+            val multipartBody = MultipartBody.Part.createFormData(
+                "profileImage",
+                imageFile.name,
+                requestImageFile
+            )
+            val response = authApiService.updateUserProfile(
+                "Bearer $token",
+                userId = userId,
+                profileImage = multipartBody,
+                username = emptyUsername
+            )
+            Result.Succes(response)
+        } catch (e: Exception) {
+            Result.Error(e.localizedMessage ?: "An error occured")
         }
     }
 

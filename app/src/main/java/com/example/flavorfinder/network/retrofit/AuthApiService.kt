@@ -72,8 +72,7 @@ interface AuthApiService {
     suspend fun updateUserProfile(
         @Header("Authorization") token: String,
         @Path("user_id") userId: String,
-        @Part file: MultipartBody.Part,
-        @Part("email") email: RequestBody,
+        @Part profileImage: MultipartBody.Part,
         @Part("username") username: RequestBody
     ): GetUserProfileResponse
 }

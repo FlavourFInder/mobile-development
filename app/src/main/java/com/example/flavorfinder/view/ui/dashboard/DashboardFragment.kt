@@ -112,6 +112,9 @@ class DashboardFragment : Fragment() {
 
     private fun handleError(errorMessage: String) {
         when {
+            errorMessage.contains("401") -> {
+                showSessionExpiredDialog()
+            }
             errorMessage.contains("403") -> {
                 showSessionExpiredDialog()
             }
@@ -156,6 +159,11 @@ class DashboardFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getBookmarks()
     }
 
     companion object {
