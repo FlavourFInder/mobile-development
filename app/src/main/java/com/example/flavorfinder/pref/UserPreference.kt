@@ -17,6 +17,7 @@ class UserPreference private constructor(private val dataStore: DataStore<Prefer
     suspend fun saveSession(user: UserModel) {
         dataStore.edit { preferences ->
             preferences[EMAIL_KEY] = user.email
+            preferences[USER_ID] = user.userId
             preferences[TOKEN_KEY] = user.token
             preferences[IS_LOGIN_KEY] = true
         }
@@ -26,6 +27,7 @@ class UserPreference private constructor(private val dataStore: DataStore<Prefer
         return dataStore.data.map { preferences ->
             UserModel(
                 preferences[EMAIL_KEY] ?: "",
+                preferences[USER_ID] ?: "",
                 preferences[TOKEN_KEY] ?: "",
                 preferences[IS_LOGIN_KEY] ?: false
             )
@@ -36,11 +38,22 @@ class UserPreference private constructor(private val dataStore: DataStore<Prefer
         val preferences = dataStore.data.first()
         return UserModel(
             preferences[EMAIL_KEY] ?: "",
+            preferences[USER_ID] ?: "",
             preferences[TOKEN_KEY] ?: "",
             preferences[IS_LOGIN_KEY] ?: false
         )
     }
 
+    suspend fun isTokenExpired(): Boolean {
+        val preferences = dataStore.data.first()
+        val token = preferences[TOKEN_KEY]
+        return token.isNullOrEmpty()
+    }
+
+    val userId: Flow<String?>
+        get() = dataStore.data.map { preferences ->
+            preferences[USER_ID]
+        }
 
     suspend fun logout() {
         dataStore.edit { preferences ->
@@ -52,7 +65,7 @@ class UserPreference private constructor(private val dataStore: DataStore<Prefer
         private var INSTANCE: UserPreference? = null
 
         private val EMAIL_KEY = stringPreferencesKey("email")
-        private val USERNAME_KEY = stringPreferencesKey("username")
+        private val USER_ID = stringPreferencesKey("user_id")
         private val TOKEN_KEY = stringPreferencesKey("token")
         private val IS_LOGIN_KEY = booleanPreferencesKey("isLogin")
 

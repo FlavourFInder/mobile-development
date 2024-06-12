@@ -4,8 +4,13 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="green">#ACD793</color>
+    <color name="green700">#5D9A4A</color>
+    <color name="green200">#ECFBDB</color>
     <color name="orange500">#FFA62F</color>
     <color name="orange200">#FFC96F</color>
+    <color name="orange700">#B76517</color>
     <color name="transparent">#00000000</color>
     <color name="grey">#434343</color>
+    <color name="grey500">#202020</color>
+    <color name="grey300">#BCBCBC</color>
 </resources>

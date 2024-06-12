@@ -1,15 +1,20 @@
 package com.example.flavorfinder.view.ui.dashboard
 
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.FragmentDashboardBinding
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.ViewModelFactory
@@ -20,10 +25,7 @@ import com.example.flavorfinder.pref.dataStore
 import com.example.flavorfinder.view.ui.adapter.BookmarkListAdapter
 import com.example.flavorfinder.view.ui.detail.DetailActivity
 import com.example.flavorfinder.view.ui.signin.SigninActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class DashboardFragment : Fragment() {
 
@@ -111,12 +113,7 @@ class DashboardFragment : Fragment() {
     private fun handleError(errorMessage: String) {
         when {
             errorMessage.contains("403") -> {
-                lifecycleScope.launch {
-                    userPreference.logout()
-                    val intent = Intent(requireContext(), SigninActivity::class.java)
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                }
+                showSessionExpiredDialog()
             }
             errorMessage.contains("404") -> {
                 binding.tvNoItemBookmark.visibility = View.VISIBLE
@@ -126,6 +123,26 @@ class DashboardFragment : Fragment() {
             }
         }
         binding.rvBookmark.visibility = View.GONE
+    }
+
+    private fun showSessionExpiredDialog() {
+        val dialog = Dialog(requireContext())
+        dialog.setContentView(R.layout.custom_dialog_session_expired)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.custom_dialog_bg))
+        dialog.setCancelable(false)
+
+        val btnDialogSessionExpired: Button = dialog.findViewById(R.id.btn_dialog_session_expired)
+        btnDialogSessionExpired.setOnClickListener {
+            dialog.dismiss()
+            lifecycleScope.launch {
+                userPreference.logout()
+                val intent = Intent(requireContext(), SigninActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+            }
+        }
+        dialog.show()
     }
 
     private fun showToast(message: String) {
