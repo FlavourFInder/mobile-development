@@ -17,6 +17,7 @@ import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.ViewModelFactory
 import com.example.flavorfinder.pref.UserPreference
 import com.example.flavorfinder.pref.dataStore
+import com.example.flavorfinder.view.ForgotPasswordActivity
 import com.example.flavorfinder.view.ui.main.MainActivity
 import com.example.flavorfinder.view.ui.register.RegisterActivity
 import kotlinx.coroutines.launch
@@ -47,6 +48,10 @@ class SigninActivity : AppCompatActivity() {
     private fun setUpTextViewButton(){
         binding.GoToRegisterPageTextButton.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
+        }
+
+        binding.ForgotPasswordTextButton.setOnClickListener {
+            startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
     }
 

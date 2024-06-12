@@ -1,6 +1,7 @@
 package com.example.flavorfinder.network.retrofit
 
 import com.example.flavorfinder.network.response.DeleteBookmarkResponse
+import com.example.flavorfinder.network.response.ForgotPasswordResponse
 import com.example.flavorfinder.network.response.GetBookmarkResponse
 import com.example.flavorfinder.network.response.GetUserProfileResponse
 import com.example.flavorfinder.network.response.LoginResponse
@@ -36,6 +37,12 @@ interface AuthApiService {
         @Field("identifier") identifier: String,
         @Field("password") password: String
     ): LoginResponse
+
+    @FormUrlEncoded
+    @POST("password-reset")
+    suspend fun forgotPassword(
+        @Field("email") email: String
+    ): ForgotPasswordResponse
 
     @GET("bookmark")
     suspend fun getBookmark(

@@ -8,6 +8,9 @@
     <string name="register">Register</string>
     <string name="newHere">New here? Register here!</string>
     <string name="haveAccount">Have an account? Sign in here!</string>
+    <string name="forgotPassword_email">Enter your email</string>
+    <string name="password_reset">Reset your password</string>
+    <string name="resetPassword">Please enter your email address. You will receive an email message with instruction on how to reset your password</string>
 
     <!-- Content Description text -->
     <string name="SignInImage">Gambar pada page Sign in page</string>

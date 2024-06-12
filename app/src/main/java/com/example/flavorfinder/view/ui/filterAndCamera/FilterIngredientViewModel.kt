@@ -1,4 +1,4 @@
-package com.example.flavorfinder.view
+package com.example.flavorfinder.view.ui.filterAndCamera
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

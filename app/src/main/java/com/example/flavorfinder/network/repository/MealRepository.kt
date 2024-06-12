@@ -1,5 +1,6 @@
 package com.example.flavorfinder.network.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import androidx.paging.Pager
@@ -10,6 +11,7 @@ import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.network.MealPagingSource
 import com.example.flavorfinder.network.response.DeleteBookmarkResponse
 import com.example.flavorfinder.network.response.FilterIngredientResponse
+import com.example.flavorfinder.network.response.ForgotPasswordResponse
 import com.example.flavorfinder.network.response.GetBookmarkResponse
 import com.example.flavorfinder.network.response.GetUserProfileResponse
 import com.example.flavorfinder.network.response.LoginResponse
@@ -55,6 +57,18 @@ class MealRepository(
 
     fun getSession(): Flow<UserModel> {
         return userPreference.getSession()
+    }
+
+    fun forgotPassword(email: String): LiveData<Result<ForgotPasswordResponse>> = liveData {
+        emit(Result.Loading)
+        try {
+            val response = authApiService.forgotPassword(email)
+            Log.d("API Response", response.toString())
+            emit(Result.Succes(response))
+        } catch (e: Exception) {
+            Log.e("API Error", e.message.toString())
+            emit(Result.Error(e.message.toString()))
+        }
     }
 
     fun getMeals(): LiveData<PagingData<MealsItem>> {

@@ -1,4 +1,4 @@
-package com.example.flavorfinder.view
+package com.example.flavorfinder.view.ui.filterAndCamera
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,9 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.ActivityFilterResultBinding
@@ -20,7 +17,6 @@ import com.example.flavorfinder.view.ui.adapter.FilteredMealListAdapter
 import com.example.flavorfinder.view.ui.detail.DetailActivity
 import com.example.flavorfinder.di.Injection
 import com.example.flavorfinder.network.repository.MealRepository
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

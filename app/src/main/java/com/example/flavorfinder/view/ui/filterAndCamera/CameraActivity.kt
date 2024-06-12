@@ -1,4 +1,4 @@
-package com.example.flavorfinder.view
+package com.example.flavorfinder.view.ui.filterAndCamera
 
 import android.Manifest
 import android.app.Activity
@@ -23,7 +23,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
