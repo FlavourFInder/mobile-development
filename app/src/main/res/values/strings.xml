@@ -39,4 +39,9 @@
     <string name="cancel">Cancel</string>
     <string name="session_expired">Session expired</string>
     <string name="message_dialog">Oops, your session has ended.\nYou need to log back in.</string>
+    <string name="edit_username">Edit Username</string>
+    <string name="insert_a_new_username">Insert a new username</string>
+    <string name="new_username">New username</string>
+    <string name="save">Save</string>
+    <string name="image_preview">Image preview</string>
 </resources>

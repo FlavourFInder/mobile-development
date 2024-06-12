@@ -3,13 +3,21 @@ package com.example.flavorfinder.view.ui.profile
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toFile
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -18,12 +26,14 @@ import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.ActivityProfileBinding
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.ViewModelFactory
+import com.example.flavorfinder.helper.uriToFile
 import com.example.flavorfinder.network.response.Data
 import com.example.flavorfinder.network.response.LoginResponse
 import com.example.flavorfinder.pref.UserModel
 import com.example.flavorfinder.pref.UserPreference
 import com.example.flavorfinder.pref.dataStore
 import com.example.flavorfinder.view.ui.signin.SigninActivity
+import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -37,7 +47,24 @@ class ProfileActivity : AppCompatActivity() {
 
     private lateinit var btnConfirmLogout: Button
 
+    private lateinit var btnSave: Button
+
     private lateinit var btnCancel: Button
+
+    private var currentImageUri: Uri? = null
+
+    private lateinit var imagePreview: CircleImageView
+
+    private val launcherGallery = registerForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            currentImageUri = uri
+            showImage(uri)
+        } else {
+            Log.d("Photo Picker", "No media selected")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +81,15 @@ class ProfileActivity : AppCompatActivity() {
 
         binding.btnLogout.setOnClickListener {
             showLogoutDialog()
+        }
+
+        binding.btnEditUsername.setOnClickListener {
+            showEditUsernameDialog()
+        }
+
+        binding.btnChangeIvProfile.setOnClickListener {
+            startGallery()
+
         }
 
         lifecycleScope.launch {
@@ -81,9 +117,50 @@ class ProfileActivity : AppCompatActivity() {
                 is Result.Error -> {
                     showToast(result.error)
                 }
-                is Result.Loading -> { showToast("Loading...") }
+                is Result.Loading -> { }
             }
         }
+    }
+
+    private fun showEditUsernameDialog() {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.dialog_edit_username)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
+        dialog.setCancelable(false)
+
+        btnCancel = dialog.findViewById(R.id.btn_cancel)
+        btnSave = dialog.findViewById(R.id.btn_save)
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnSave.setOnClickListener {
+            val username = dialog.findViewById<EditText>(R.id.usernameEditText).text.toString()
+            if (username.isEmpty()) {
+                showToast("Username cannot be empty")
+                return@setOnClickListener
+            }
+            lifecycleScope.launch {
+                viewModel.updateUsername(username).observe(this@ProfileActivity) { result ->
+                    when (result) {
+                        is Result.Succes -> {
+                            showToast("Username updated successfully")
+                            dialog.dismiss()
+                            viewModel.getUserData()
+                        }
+                        is Result.Error -> {
+                            showToast(result.error)
+                        }
+                        is Result.Loading -> {
+                            showToast("Updating...")
+                        }
+                    }
+                }
+            }
+        }
+        dialog.show()
     }
 
     private fun showLogoutDialog() {
@@ -106,6 +183,54 @@ class ProfileActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
             dialog.dismiss()
+        }
+        dialog.show()
+    }
+
+    private fun startGallery() {
+        launcherGallery.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+    }
+
+    private fun showImage(uri: Uri) {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.dialog_change_image_profile)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
+        dialog.setCancelable(false)
+
+        btnCancel = dialog.findViewById(R.id.btn_cancel)
+        btnSave = dialog.findViewById(R.id.btn_save)
+        imagePreview = dialog.findViewById(R.id.iv_profile)
+        imagePreview.setImageURI(uri)
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnSave.setOnClickListener {
+            currentImageUri?.let {
+                Log.d("Image URI", "showImage: $it")
+                val imageFile = uriToFile(it, this)
+                imageFile?.let { file ->
+                    lifecycleScope.launch {
+                        viewModel.updateProfilePicture(file).observe(this@ProfileActivity) { result ->
+                            when (result) {
+                                is Result.Succes -> {
+                                    showToast("Profile picture updated successfully")
+                                    dialog.dismiss()
+                                    viewModel.getUserData()
+                                }
+                                is Result.Error -> {
+                                    showToast(result.error)
+                                }
+                                is Result.Loading -> {
+                                    showToast("Updating...")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
         dialog.show()
     }
