@@ -46,19 +46,22 @@ class SplashActivity : AppCompatActivity() {
         playAnimation(binding.tvLogo)
 
         lifecycleScope.launch {
-            delay(2000)
-            val user = userPreference.getUser()
-            if (user.isLogin) {
-                val intent = Intent(this@SplashActivity, MainActivity::class.java)
+            if (isTokenExpired()) {
+                val intent = Intent(this@SplashActivity, SigninActivity::class.java)
                 startActivity(intent)
                 finish()
-            } else {
-                val intent = Intent(this@SplashActivity, SigninActivity::class.java)
+            }  else {
+                val intent = Intent(this@SplashActivity, MainActivity::class.java)
                 startActivity(intent)
                 finish()
             }
         }
 
+    }
+
+    private suspend fun isTokenExpired(): Boolean {
+        val userPreference = UserPreference.getInstance(applicationContext.dataStore)
+        return userPreference.isTokenExpired()
     }
 
     private fun playAnimation(view: View) {

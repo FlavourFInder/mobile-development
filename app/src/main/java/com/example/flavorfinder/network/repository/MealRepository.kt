@@ -11,17 +11,20 @@ import com.example.flavorfinder.network.MealPagingSource
 import com.example.flavorfinder.network.response.DeleteBookmarkResponse
 import com.example.flavorfinder.network.response.FilterIngredientResponse
 import com.example.flavorfinder.network.response.GetBookmarkResponse
+import com.example.flavorfinder.network.response.GetUserProfileResponse
 import com.example.flavorfinder.network.response.LoginResponse
 import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.network.response.MealsResponse
 import com.example.flavorfinder.network.response.PostBookmarkResponse
 import com.example.flavorfinder.network.response.RegisterResponse
+import com.example.flavorfinder.network.retrofit.ApiConfig
 import com.example.flavorfinder.network.retrofit.AuthApiService
 import com.example.flavorfinder.network.retrofit.MealsApiService
 import com.example.flavorfinder.pref.UserModel
 import com.example.flavorfinder.pref.UserPreference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import java.io.File
 
 class MealRepository(
     private val mealsApiService: MealsApiService,
@@ -43,7 +46,7 @@ class MealRepository(
         emit(Result.Loading)
         try {
             val response = authApiService.login(identifier, password)
-            userPreference.saveSession(UserModel(identifier, response.data.token, true))
+            userPreference.saveSession(UserModel(identifier, response.data.user.userId, response.data.token, true))
             emit(Result.Succes(response))
         } catch (e: Exception) {
             emit(Result.Error(e.message.toString()))
@@ -111,6 +114,20 @@ class MealRepository(
     suspend fun deleteBookmark(bookmarkId: String){
         val token = getSession().first().token
         authApiService.deleteBookmark("Bearer $token", bookmarkId)
+    }
+
+    suspend fun getUser(): Result<GetUserProfileResponse> {
+        return try {
+            val token = userPreference.getSession().first().token
+            val userId = userPreference.getSession().first().userId
+
+            run {
+                val response = authApiService.getUser("Bearer $token", userId)
+                Result.Succes(response)
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "An error occured")
+        }
     }
 
     suspend fun logout() {

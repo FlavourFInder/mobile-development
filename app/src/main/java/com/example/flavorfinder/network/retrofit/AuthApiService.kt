@@ -2,16 +2,23 @@ package com.example.flavorfinder.network.retrofit
 
 import com.example.flavorfinder.network.response.DeleteBookmarkResponse
 import com.example.flavorfinder.network.response.GetBookmarkResponse
+import com.example.flavorfinder.network.response.GetUserProfileResponse
 import com.example.flavorfinder.network.response.LoginResponse
 import com.example.flavorfinder.network.response.PostBookmarkResponse
 import com.example.flavorfinder.network.response.RegisterResponse
+import com.example.flavorfinder.network.response.UpdateProfileResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.Header
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 
 interface AuthApiService {
@@ -47,4 +54,19 @@ interface AuthApiService {
         @Path("bookmarkId") bookmarkId: String
     ): DeleteBookmarkResponse
 
+    @GET("user/{user_id}")
+    suspend fun getUser(
+        @Header("Authorization") token: String,
+        @Path("user_id") userId: String
+    ): GetUserProfileResponse
+
+    @Multipart
+    @PUT("user/{user_id}")
+    suspend fun updateUserProfile(
+        @Header("Authorization") token: String,
+        @Path("user_id") userId: String,
+        @Part file: MultipartBody.Part,
+        @Part("email") email: RequestBody,
+        @Part("username") username: RequestBody
+    ): GetUserProfileResponse
 }
