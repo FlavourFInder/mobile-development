@@ -35,7 +35,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 
-class MealRepository(
+open class MealRepository(
     private val mealsApiService: MealsApiService,
     private val authApiService: AuthApiService,
     private val userPreference: UserPreference
@@ -78,7 +78,7 @@ class MealRepository(
         }
     }
 
-    fun getMeals(): LiveData<PagingData<MealsItem>> {
+    open fun getMeals(): LiveData<PagingData<MealsItem>> {
         return Pager(
             config = PagingConfig(
                 pageSize = 20

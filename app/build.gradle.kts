@@ -83,4 +83,14 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     implementation("com.airbnb.android:lottie:6.4.1")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:5.2.0")
+    testImplementation("org.mockito:mockito-inline:5.2.0")
+    testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation("androidx.test:core:1.4.0")
+    testImplementation("androidx.test.ext:junit:1.1.3")
+    testImplementation("androidx.test.ext:truth:1.4.0")
+    testImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0")
 }
