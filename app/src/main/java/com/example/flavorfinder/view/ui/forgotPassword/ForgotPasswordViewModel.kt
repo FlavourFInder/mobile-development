@@ -1,4 +1,4 @@
-package com.example.flavorfinder.view
+package com.example.flavorfinder.view.ui.forgotPassword
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel

@@ -9,7 +9,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.flavorfinder.R
 import com.example.flavorfinder.ToastMatcher
-import com.example.flavorfinder.view.ui.main.MainActivity
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

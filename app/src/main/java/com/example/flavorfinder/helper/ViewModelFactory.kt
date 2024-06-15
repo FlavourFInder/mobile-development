@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.flavorfinder.di.Injection
 import com.example.flavorfinder.network.repository.MealRepository
-import com.example.flavorfinder.view.ForgotPasswordViewModel
+import com.example.flavorfinder.view.ui.forgotPassword.ForgotPasswordViewModel
 import com.example.flavorfinder.view.ui.dashboard.DashboardViewModel
 import com.example.flavorfinder.view.ui.detail.DetailViewModel
 import com.example.flavorfinder.view.ui.main.MainViewModel

@@ -1,4 +1,4 @@
-package com.example.flavorfinder.view
+package com.example.flavorfinder.view.ui.forgotPassword
 
 import android.os.Bundle
 import android.util.Log

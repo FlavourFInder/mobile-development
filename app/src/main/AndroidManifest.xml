@@ -19,7 +19,7 @@
         android:theme="@style/Theme.FlavorFinder"
         tools:targetApi="31">
         <activity
-            android:name=".view.ForgotPasswordActivity"
+            android:name=".view.ui.forgotPassword.ForgotPasswordActivity"
             android:exported="false" />
         <activity
             android:name=".view.SplashActivity"

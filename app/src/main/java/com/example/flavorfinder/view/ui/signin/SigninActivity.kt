@@ -15,7 +15,7 @@ import com.example.flavorfinder.databinding.ActivitySigninBinding
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.ViewModelFactory
 import com.example.flavorfinder.pref.UserPreference
-import com.example.flavorfinder.view.ForgotPasswordActivity
+import com.example.flavorfinder.view.ui.forgotPassword.ForgotPasswordActivity
 import com.example.flavorfinder.view.ui.main.MainActivity
 import com.example.flavorfinder.view.ui.register.RegisterActivity
 
@@ -32,7 +32,7 @@ class SigninActivity : AppCompatActivity() {
         binding = ActivitySigninBinding.inflate(layoutInflater)
         setContentView(binding.root)
         enableEdgeToEdge()
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.signIn_activity)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
