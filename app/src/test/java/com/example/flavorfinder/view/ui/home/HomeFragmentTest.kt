@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import com.example.flavorfinder.network.repository.MealRepository
 import com.example.flavorfinder.network.response.MealsItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
 import org.junit.Before
@@ -20,6 +21,8 @@ import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class HomeFragmentTest {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val testDispatcher = UnconfinedTestDispatcher()
 
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
@@ -36,7 +39,7 @@ class HomeFragmentTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun `when get meal should not be null and return success`() = runTest {
+    fun `when get meal should not be null and return success`() = runTest(testDispatcher) {
         val observer = Observer<PagingData<MealsItem>> {}
         try {
             val pagingData = PagingData.from(dummyMeals)

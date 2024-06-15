@@ -10,17 +10,14 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.lifecycleScope
 import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.ActivitySigninBinding
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.ViewModelFactory
 import com.example.flavorfinder.pref.UserPreference
-import com.example.flavorfinder.pref.dataStore
 import com.example.flavorfinder.view.ForgotPasswordActivity
 import com.example.flavorfinder.view.ui.main.MainActivity
 import com.example.flavorfinder.view.ui.register.RegisterActivity
-import kotlinx.coroutines.launch
 
 class SigninActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySigninBinding
@@ -43,13 +40,16 @@ class SigninActivity : AppCompatActivity() {
 
         setUpTextViewButton()
         setUpButton()
+        setUpForgotPasswordButton()
     }
 
     private fun setUpTextViewButton(){
         binding.GoToRegisterPageTextButton.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+    }
 
+    private fun setUpForgotPasswordButton(){
         binding.ForgotPasswordTextButton.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
