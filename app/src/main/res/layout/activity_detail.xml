@@ -167,10 +167,52 @@
                 app:layout_constraintStart_toStartOf="@id/tv_text_instruction"
                 app:layout_constraintTop_toBottomOf="@id/tv_text_instruction"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
                 android:textSize="16sp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginBottom="20dp"/>
+
+            <TextView
+                android:id="@+id/tv_comments_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/comments"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="@id/tv_instruction"
+                app:layout_constraintTop_toBottomOf="@id/tv_instruction"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/commentEditTextLayout"
+                style="@style/SigninTextInputLayoutStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"
+                app:layout_constraintStart_toStartOf="@id/tv_comments_title"
+                app:layout_constraintTop_toBottomOf="@id/tv_comments_title"
+                app:layout_constraintEnd_toEndOf="@id/tv_instruction">
+
+                <com.example.flavorfinder.view.ui.customview.CommentEditText
+                    android:id="@+id/commentEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/add_a_comment"
+                    android:textColorHint="@color/orange200"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:ems="10"
+                    tools:ignore="SpeakableTextPresentCheck" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="@id/commentEditTextLayout"
+                app:layout_constraintTop_toBottomOf="@id/commentEditTextLayout"
+                app:layout_constraintEnd_toEndOf="@id/commentEditTextLayout"
+                tools:listitem="@layout/item_card_comment"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
