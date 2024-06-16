@@ -3,9 +3,11 @@ package com.example.flavorfinder.network.retrofit
 import com.example.flavorfinder.network.response.DeleteBookmarkResponse
 import com.example.flavorfinder.network.response.ForgotPasswordResponse
 import com.example.flavorfinder.network.response.GetBookmarkResponse
+import com.example.flavorfinder.network.response.GetCommentResponse
 import com.example.flavorfinder.network.response.GetUserProfileResponse
 import com.example.flavorfinder.network.response.LoginResponse
 import com.example.flavorfinder.network.response.PostBookmarkResponse
+import com.example.flavorfinder.network.response.PostCommentResponse
 import com.example.flavorfinder.network.response.RegisterResponse
 import com.example.flavorfinder.network.response.UpdateProfileResponse
 import okhttp3.MultipartBody
@@ -75,4 +77,20 @@ interface AuthApiService {
         @Part profileImage: MultipartBody.Part,
         @Part("username") username: RequestBody
     ): GetUserProfileResponse
+
+    @FormUrlEncoded
+    @POST("{recipe_id}/comments")
+    suspend fun addComment(
+        @Header("Authorization") token: String,
+        @Path("recipe_id") recipeId: String,
+        @Field("user_id") userId: String,
+        @Field("comment_text") commentText: String
+    ): PostCommentResponse
+
+//    @GET("recipe_id/{comments}")
+//    suspend fun getComments(
+//        @Header("Authorization") token: String,
+//        @Path("user_id") userId: String
+//    ): GetCommentResponse
+
 }
