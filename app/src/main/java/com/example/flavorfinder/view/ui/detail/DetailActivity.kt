@@ -16,12 +16,15 @@ import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.ViewModelFactory
 import com.example.flavorfinder.network.repository.MealRepository
 import com.example.flavorfinder.network.response.GetBookmarkRecipe
+import com.example.flavorfinder.network.response.GetUserProfileResponse
 import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.pref.UserPreference
 import com.example.flavorfinder.pref.dataStore
+import com.example.flavorfinder.view.ui.adapter.CommentListAdapter
 import com.example.flavorfinder.view.ui.adapter.IngredientAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -29,6 +32,7 @@ class DetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailBinding
     private lateinit var ingredientAdapter: IngredientAdapter
+    private lateinit var commentListAdapter: CommentListAdapter
     private val viewModel by viewModels<DetailViewModel> {
         ViewModelFactory.getInstance(this)
     }
@@ -37,6 +41,7 @@ class DetailActivity : AppCompatActivity() {
     private var recipeId: Int? = 0
     private var isBookmarked = false
     private var bookmarkId: String? = null
+    private var userProfileMap: MutableMap<String, GetUserProfileResponse> = mutableMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,20 +51,41 @@ class DetailActivity : AppCompatActivity() {
 
         userPreference = UserPreference.getInstance(dataStore)
         repository = Injection.provideRepository(this) ?: throw IllegalStateException("Repository not initialized")
-
         val mealItem = intent.getParcelableExtra<MealsItem>("data")
+
         val bookmarkRecipe = intent.getParcelableExtra<GetBookmarkRecipe>("bookmark")
 
         if (mealItem != null) {
             recipeId = mealItem.idMeal?.toInt()
             setupDetailMenu(mealItem)
             checkIfBookmarked(recipeId!!)
+
+            binding.commentEditText.setPostButtonClickListener {
+                postComment()
+            }
         } else if (bookmarkRecipe != null) {
             recipeId = bookmarkRecipe.idMeal?.toInt()
             fetchAndSetupDetailMenu(bookmarkRecipe.idMeal)
             checkIfBookmarked(bookmarkRecipe.idMeal?.toInt()!!)
+
+            binding.commentEditText.setPostButtonClickListener {
+                postComment()
+            }
         } else {
             showToast("Failed to load data")
+        }
+
+        viewModel.commentResult.observe(this) { result ->
+            when (result) {
+                is Result.Succes -> {
+                    showToast("Comment added successfully")
+                }
+                is Result.Error -> {
+                    showToast("Failed to add comment: ${result.error}")
+                    Log.d(result.error, "failed to add comment")
+                }
+                is Result.Loading -> {}
+            }
         }
 
         viewModel.bookmarkResult.observe(this) { result ->
@@ -78,7 +104,9 @@ class DetailActivity : AppCompatActivity() {
             Log.d("DetailActivity", "Bookmark ID updates: $bookmarkId")
             this.bookmarkId = bookmarkId
         }
+
     }
+
 
     private fun fetchAndSetupDetailMenu(mealId: String?) {
         if (mealId == null) return
@@ -128,6 +156,18 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
+    private fun postComment() {
+        val commentText = binding.commentEditText.text.toString().trim()
+        if (commentText.isNotEmpty()) {
+            CoroutineScope(Dispatchers.Main).launch {
+                val userId = repository.getSession().first().userId
+                viewModel.addComment(recipeId.toString(), userId, commentText)
+            }
+        } else {
+            showToast("Comment cannot be empty")
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_detail, menu)
         val bookmarkItem = menu?.findItem(R.id.action_bookmark)
@@ -164,6 +204,21 @@ class DetailActivity : AppCompatActivity() {
                 }
                 is Result.Error -> showToast(result.error)
                 is Result.Loading -> showToast("Loading..")
+            }
+        }
+    }
+
+    private fun fetchUserProfiles(userIds: List<String>, callback: (Map<String, GetUserProfileResponse>) -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val userProfileMap = mutableMapOf<String, GetUserProfileResponse>()
+            for (userId in userIds) {
+                val result = viewModel.getUser(userId).value
+                if (result is Result.Succes) {
+                    userProfileMap[userId] = result.data
+                }
+            }
+            withContext(Dispatchers.Main) {
+                callback(userProfileMap)
             }
         }
     }

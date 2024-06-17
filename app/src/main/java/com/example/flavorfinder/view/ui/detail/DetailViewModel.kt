@@ -7,7 +7,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.network.repository.MealRepository
 import com.example.flavorfinder.network.response.DeleteBookmarkResponse
-import com.example.flavorfinder.network.response.PostBookmarkResponse
+import com.example.flavorfinder.network.response.GetCommentResponse
+import com.example.flavorfinder.network.response.GetUserProfileResponse
+import com.example.flavorfinder.network.response.PostCommentResponse
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class DetailViewModel(private val repository: MealRepository): ViewModel() {
@@ -17,6 +21,12 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
 
     private val _bookmarkId = MutableLiveData<String?>()
     val bookmarkId: LiveData<String?> = _bookmarkId
+
+    private val _commentResult = MutableLiveData<Result<PostCommentResponse>>()
+    val commentResult: LiveData<Result<PostCommentResponse>> = _commentResult
+
+    private val _comment = MutableLiveData<Result<GetCommentResponse>>()
+    val comment: LiveData<Result<GetCommentResponse>> = _comment
 
     private val _deleteBookmarkResult = MutableLiveData<Result<DeleteBookmarkResponse>>()
     val deleteBookmarkResult: LiveData<Result<DeleteBookmarkResponse>> = _deleteBookmarkResult
@@ -52,6 +62,16 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
         }
     }
 
+    fun addComment(recipeId: String, userId: String, commentText: String) {
+        viewModelScope.launch {
+            val token = "Bearer ${repository.getSession().first().token}"
+            _commentResult.value = Result.Loading
+            val result = repository.addComment(token, recipeId, userId, commentText)
+            _commentResult.value = result
+        }
+    }
+
+
     fun deleteBookmark(bookmarkId: String) {
         viewModelScope.launch {
             _bookmarkResult.value = Result.Loading
@@ -64,4 +84,19 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
             }
         }
     }
+
+    fun getUser(userId: String): LiveData<Result<GetUserProfileResponse>> {
+        val result = MutableLiveData<Result<GetUserProfileResponse>>()
+        viewModelScope.launch {
+            result.value = repository.getUserById(userId)
+        }
+        return result
+    }
+
+//    fun getComments(recipeId: String) {
+//        viewModelScope.launch {
+//            val result = repository.getComments(recipeId)
+//            _comment.value = result
+//        }
+//    }
 }

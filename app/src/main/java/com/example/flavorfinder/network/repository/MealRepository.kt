@@ -14,11 +14,13 @@ import com.example.flavorfinder.network.response.DeleteBookmarkResponse
 import com.example.flavorfinder.network.response.FilterIngredientResponse
 import com.example.flavorfinder.network.response.ForgotPasswordResponse
 import com.example.flavorfinder.network.response.GetBookmarkResponse
+import com.example.flavorfinder.network.response.GetCommentResponse
 import com.example.flavorfinder.network.response.GetUserProfileResponse
 import com.example.flavorfinder.network.response.LoginResponse
 import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.network.response.MealsResponse
 import com.example.flavorfinder.network.response.PostBookmarkResponse
+import com.example.flavorfinder.network.response.PostCommentResponse
 import com.example.flavorfinder.network.response.RegisterResponse
 import com.example.flavorfinder.network.retrofit.ApiConfig
 import com.example.flavorfinder.network.retrofit.AuthApiService
@@ -33,6 +35,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.HttpException
 import java.io.File
 
 open class MealRepository(
@@ -102,6 +105,22 @@ open class MealRepository(
         return authApiService.addBookmark("Bearer $token", mapOf("recipeId" to recipeId))
     }
 
+    suspend fun addComment(token: String, recipeId: String, userId: String, commentText: String): Result<PostCommentResponse> {
+        return try {
+            val response = authApiService.addComment(
+                token = token,
+                recipeId = recipeId,
+                userId = userId,
+                commentText = commentText
+            )
+            Result.Succes(response)
+        } catch (e: HttpException) {
+            Result.Error(e.localizedMessage ?: "An error occurred")
+        } catch (e: Exception) {
+            Result.Error(e.localizedMessage ?: "An error occurred")
+        }
+    }
+
     suspend fun lookupMeals(mealId: String): MealsResponse {
         return mealsApiService.lookupMeals(mealId)
     }
@@ -112,9 +131,19 @@ open class MealRepository(
             val response = authApiService.getBookmark("Bearer $token")
             Result.Succes(response)
         } catch (e: Exception) {
-            Result.Error(e.message ?: "An error occured")
+            Result.Error(e.message ?: "An error occurred")
         }
     }
+
+//    suspend fun getComments(recipeId: String): Result<GetCommentResponse> {
+//        return try {
+//            val token = userPreference.getSession().first().token
+//            val response = authApiService.getComments("Bearer $token", recipeId)
+//            Result.Succes(response)
+//        } catch (e: Exception) {
+//            Result.Error(e.message.toString())
+//        }
+//    }
 
     suspend fun getBookmarks(): GetBookmarkResponse {
         val token = userPreference.getSession().first().token
@@ -137,6 +166,16 @@ open class MealRepository(
             }
         } catch (e: Exception) {
             Result.Error(e.message ?: "An error occured")
+        }
+    }
+
+    suspend fun getUserById(userId: String): Result<GetUserProfileResponse> {
+        return try {
+            val token = userPreference.getSession().first().token
+            val response = authApiService.getUser("Bearer $token", userId)
+            Result.Succes(response)
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "An error occurred")
         }
     }
 

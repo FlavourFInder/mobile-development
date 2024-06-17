@@ -44,4 +44,7 @@
     <string name="new_username">New username</string>
     <string name="save">Save</string>
     <string name="image_preview">Image preview</string>
+    <string name="see_all_reviews">See all reviews</string>
+    <string name="comments">Comments</string>
+    <string name="add_a_comment">Add a comment</string>
 </resources>
