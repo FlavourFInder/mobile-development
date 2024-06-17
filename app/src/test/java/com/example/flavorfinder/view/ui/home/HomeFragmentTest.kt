@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.paging.AsyncPagingDataDiffer
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
@@ -12,9 +13,12 @@ import androidx.recyclerview.widget.ListUpdateCallback
 import com.example.flavorfinder.network.repository.MealRepository
 import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.network.response.MealsResponse
+import com.example.flavorfinder.view.ui.adapter.MealListAdapter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert
 import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
@@ -27,50 +31,43 @@ import org.mockito.junit.MockitoJUnitRunner
 
 @RunWith(MockitoJUnitRunner::class)
 class HomeFragmentTest {
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private val testDispatcher = UnconfinedTestDispatcher()
-
     @get:Rule
     val instantExecutorRule = InstantTaskExecutorRule()
+
+    @get:Rule
+    val mainDispatcherRules = MainDispatcherRule()
 
     @Mock
     private lateinit var mealsRepository: MealRepository
     private lateinit var homeViewModel: HomeViewModel
     private val dummyMeals = DataDummy.generateDummyMealsItem()
 
-    @Before
-    fun setUp() {
-        homeViewModel = HomeViewModel(mealsRepository)
-    }
-
     @ExperimentalCoroutinesApi
     @Test
-    fun `when get meal should not be null and return success`() = runTest(testDispatcher) {
-        val observer = Observer<PagingData<MealsItem>> {}
-        try {
-            val pagingData = PagingData.from(dummyMeals)
-            val expectedMeals = MutableLiveData<PagingData<MealsItem>>()
-            expectedMeals.value = pagingData
+    fun `when get meal should not be null and return success`() = runTest {
+        val data: PagingData<MealsItem> = MealPagingSource.snapshot(dummyMeals)
+        val expectedMeal = MutableLiveData<PagingData<MealsItem>>()
+        expectedMeal.value = data
+        `when`(mealsRepository.getMeals()).thenReturn(expectedMeal)
 
-            `when`(mealsRepository.getMeals()).thenReturn(expectedMeals)
+        homeViewModel = HomeViewModel(mealsRepository)
 
-            homeViewModel.meal.observeForever(observer)
+        val actualMeal: PagingData<MealsItem> = homeViewModel.meal.getOrAwaitValue()
 
-            val actualMeals = homeViewModel.meal.value
+        val differ = AsyncPagingDataDiffer(
+            diffCallback = MealListAdapter.DIFF_CALLBACK,
+            updateCallback = noopListUpdateCallback,
+            workerDispatcher = Dispatchers.Main
+        )
+        differ.submitData(actualMeal)
 
-            verify(mealsRepository).getMeals()
-            assertNotNull(actualMeals)
-        } finally {
-            homeViewModel.meal.removeObserver(observer)
-        }
+        assertNotNull(differ.snapshot())
+        Assert.assertEquals(dummyMeals.size, differ.snapshot().size)
+        Assert.assertEquals(dummyMeals[0], differ.snapshot()[0])
     }
 
     class MealPagingSource : PagingSource<Int, MealsItem>(){
         companion object{
-//            di mealPagingSource asli seperti ini
-//            const val INITIAL_PAGE_INDEX = 1
-
-//            ini mengikuti contoh modul
             fun snapshot(items: List<MealsItem>): PagingData<MealsItem>{
                 return PagingData.from(items)
             }
