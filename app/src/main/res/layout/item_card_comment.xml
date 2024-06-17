@@ -29,7 +29,7 @@
             android:textStyle="bold"
             android:layout_marginStart="8dp"
             app:layout_constraintStart_toEndOf="@id/iv_profile"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iv_profile"
             app:layout_constraintBottom_toBottomOf="@id/iv_profile"
             android:maxLines="1"
             android:ellipsize="end"
@@ -42,24 +42,25 @@
             tools:text="@tools:sample/date/mmddyy"
             android:textSize="16sp"
             app:layout_constraintStart_toEndOf="@id/tv_username"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_delete"
+            app:layout_constraintTop_toTopOf="@id/iv_profile"
             app:layout_constraintBottom_toBottomOf="@id/iv_profile"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.75"/>
+            app:layout_constraintHorizontal_bias="1"/>
+
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_delete"
+            style="@style/Widget.Material3.Button.IconButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             app:icon="@drawable/baseline_delete_24"
             app:iconTint="?attr/colorAccent"
-            style="@style/Widget.Material3.Button.IconButton"
-            app:layout_constraintStart_toEndOf="@id/tv_date"
-            app:layout_constraintTop_toTopOf="parent"
+            app:iconSize="20dp"
             app:layout_constraintBottom_toBottomOf="@id/iv_profile"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1" />
-
+            app:layout_constraintHorizontal_bias="1"
+            app:layout_constraintTop_toTopOf="@id/iv_profile"
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/tv_content"

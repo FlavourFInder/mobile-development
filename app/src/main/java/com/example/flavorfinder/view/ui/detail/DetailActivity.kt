@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
@@ -43,7 +44,7 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
     private var recipeId: Int? = 0
     private var isBookmarked = false
     private var bookmarkId: String? = null
-    private lateinit var commentId: String
+    private lateinit var currentUserId: String
 
     private lateinit var btnConfirm: Button
     private lateinit var btnCancel: Button
@@ -56,8 +57,8 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
 
         userPreference = UserPreference.getInstance(dataStore)
         repository = Injection.provideRepository(this)
-        val mealItem = intent.getParcelableExtra<MealsItem>("data")
 
+        val mealItem = intent.getParcelableExtra<MealsItem>("data")
         val bookmarkRecipe = intent.getParcelableExtra<GetBookmarkRecipe>("bookmark")
 
         if (mealItem != null) {
@@ -65,7 +66,10 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
             setupDetailMenu(mealItem)
             checkIfBookmarked(recipeId!!)
 
-            setupCommentsRecyclerView(recipeId.toString())
+            CoroutineScope(Dispatchers.Main).launch {
+                currentUserId = repository.getSession().first().userId
+                setupCommentsRecyclerView(recipeId.toString())
+            }
             binding.commentEditText.setPostButtonClickListener {
                 postComment()
             }
@@ -76,7 +80,10 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
             fetchAndSetupDetailMenu(bookmarkRecipe.idMeal)
             checkIfBookmarked(bookmarkRecipe.idMeal?.toInt()!!)
 
-            setupCommentsRecyclerView(bookmarkRecipe.idMeal)
+            CoroutineScope(Dispatchers.Main).launch {
+                currentUserId = repository.getSession().first().userId
+                setupCommentsRecyclerView(recipeId.toString())
+            }
             binding.commentEditText.setPostButtonClickListener {
                 postComment()
             }
@@ -84,33 +91,25 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
             showToast("Failed to load data")
         }
 
-        observeViewModel()
+        observeBookmark()
+        observeComment()
 
     }
 
-    private fun observeViewModel() {
-        viewModel.commentResult.observe(this) { result ->
-            when (result) {
-                is Result.Succes -> {
-                    showToast("Comment added successfully")
-                }
-                is Result.Error -> {
-                    showToast("Failed to add comment: ${result.error}")
-                    Log.d(result.error, "failed to add comment")
-                }
-                is Result.Loading -> {}
-            }
-        }
-
+    private fun observeBookmark() {
         viewModel.bookmarkResult.observe(this) { result ->
             when (result) {
                 is Result.Succes -> {
                     isBookmarked = !isBookmarked
                     invalidateOptionsMenu()
                     showToast(result.data)
+                    showLoading(false)
                 }
-                is Result.Error -> showToast(result.error)
-                is Result.Loading -> showToast("Loading...")
+                is Result.Error -> {
+                    result.error
+                    showLoading(false)
+                }
+                is Result.Loading -> showLoading(true)
             }
         }
 
@@ -118,12 +117,30 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
             Log.d("DetailActivity", "Bookmark ID updates: $bookmarkId")
             this.bookmarkId = bookmarkId
         }
+    }
+
+    private fun observeComment() {
+        viewModel.commentResult.observe(this) { result ->
+            when (result) {
+                is Result.Succes -> {
+                    showToast("Comment added successfully")
+                    showLoading(false)
+                }
+                is Result.Error -> {
+                    showToast("Failed to add comment: ${result.error}")
+                    Log.d(result.error, "failed to add comment")
+                    showLoading(false)
+                }
+                is Result.Loading -> {showLoading(true)}
+            }
+        }
 
         viewModel.commentsWithUserProfiles.observe(this) { comments ->
             commentListAdapter.submitList(comments)
-        }
-    }
 
+        }
+
+    }
 
     private fun fetchAndSetupDetailMenu(mealId: String?) {
         if (mealId == null) return
@@ -135,6 +152,7 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
                 if (mealItem != null) {
                     withContext(Dispatchers.Main) {
                         setupDetailMenu(mealItem)
+                        observeComment()
                     }
                 } else {
                     withContext(Dispatchers.Main) {
@@ -224,16 +242,19 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
                     bookmarkId = result.data
                     invalidateOptionsMenu()
                 }
-                is Result.Error -> showToast(result.error)
+                is Result.Error -> result.error
                 is Result.Loading -> showToast("Loading..")
             }
         }
     }
 
     private fun setupCommentsRecyclerView(recipeId: String) {
-        commentListAdapter = CommentListAdapter(this)
+        commentListAdapter = CommentListAdapter(this, currentUserId)
         binding.rvComment.apply {
-            layoutManager = LinearLayoutManager(this@DetailActivity)
+            layoutManager = LinearLayoutManager(this@DetailActivity).apply {
+                reverseLayout = true
+                stackFromEnd = true
+            }
             adapter = commentListAdapter
         }
 
@@ -280,8 +301,13 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
         }
         dialog.show()
     }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+    }
+
     override fun onResume() {
         super.onResume()
-        observeViewModel()
+        observeComment()
     }
 }
