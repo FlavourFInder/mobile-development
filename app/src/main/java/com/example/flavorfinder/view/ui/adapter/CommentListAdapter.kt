@@ -10,24 +10,19 @@ import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.ItemCardCommentBinding
 import com.example.flavorfinder.network.response.CommentData
 import com.example.flavorfinder.network.response.GetUserProfileResponse
+import com.example.flavorfinder.pref.CommentWithUserProfile
 
-class CommentListAdapter(
-    private val userProfileMap: Map<String, GetUserProfileResponse>
-): ListAdapter<CommentData, CommentListAdapter.ViewHolder>(DIFF_CALLBACK) {
+class CommentListAdapter: ListAdapter<CommentWithUserProfile, CommentListAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     class ViewHolder(val binding: ItemCardCommentBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(comment: CommentData, userProfile: GetUserProfileResponse?) {
-            binding.apply {
-                userProfile?.let {
-                    tvUsername.text = it.data.username
-                    Glide.with(itemView.context)
-                        .load(it.data.imgUrl)
-                        .placeholder(R.drawable.baseline_account_circle_24)
-                        .into(ivProfile)
-                }
-                tvDate.text = comment.createdAt
-                tvContent.text = comment.commentText
-            }
+        fun bind(comment: CommentWithUserProfile) {
+            binding.tvUsername.text = comment.userProfile.username
+            binding.tvContent.text = comment.comment.commentText
+            Glide.with(itemView.context)
+                .load(comment.userProfile.imgUrl)
+                .placeholder(R.drawable.baseline_account_circle_24)
+                .into(binding.ivProfile)
+            binding.tvDate.text = comment.comment.createdAt.slice(0..9)
         }
     }
 
@@ -40,18 +35,17 @@ class CommentListAdapter(
     }
 
     override fun onBindViewHolder(holder: CommentListAdapter.ViewHolder, position: Int) {
-        val commentItem = getItem(position)
-        val userProfile = userProfileMap[commentItem.userId]
-        holder.bind(commentItem, userProfile)
+        val item = getItem(position)
+        holder.bind(item)
     }
 
     companion object {
-        val DIFF_CALLBACK = object : DiffUtil.ItemCallback<CommentData>() {
-            override fun areItemsTheSame(oldItem: CommentData, newItem: CommentData): Boolean {
-                return oldItem.commentId == newItem.commentId
+        val DIFF_CALLBACK = object : DiffUtil.ItemCallback<CommentWithUserProfile>() {
+            override fun areItemsTheSame(oldItem: CommentWithUserProfile, newItem: CommentWithUserProfile): Boolean {
+                return oldItem.comment.commentId == newItem.comment.commentId
             }
 
-            override fun areContentsTheSame(oldItem: CommentData, newItem: CommentData): Boolean {
+            override fun areContentsTheSame(oldItem: CommentWithUserProfile, newItem: CommentWithUserProfile): Boolean {
                 return oldItem == newItem
             }
 

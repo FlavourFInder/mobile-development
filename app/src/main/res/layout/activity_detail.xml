@@ -42,7 +42,7 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="@drawable/layout_bg"
         android:layout_marginTop="-50dp"
         android:padding="10dp"
@@ -163,7 +163,7 @@
                 android:id="@+id/tv_instruction"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                tools:text="@tools:sample/lorem/random"
+                tools:text="@tools:sample/lorem"
                 app:layout_constraintStart_toStartOf="@id/tv_text_instruction"
                 app:layout_constraintTop_toBottomOf="@id/tv_text_instruction"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -178,7 +178,7 @@
                 android:text="@string/comments"
                 android:textStyle="bold"
                 android:textSize="20sp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="20dp"
                 app:layout_constraintStart_toStartOf="@id/tv_instruction"
                 app:layout_constraintTop_toBottomOf="@id/tv_instruction"/>
 
@@ -209,9 +209,9 @@
                 android:id="@+id/rv_comment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="@id/commentEditTextLayout"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/commentEditTextLayout"
-                app:layout_constraintEnd_toEndOf="@id/commentEditTextLayout"
+                app:layout_constraintEnd_toEndOf="parent"
                 tools:listitem="@layout/item_card_comment"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
