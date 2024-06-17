@@ -10,7 +10,6 @@ import com.example.flavorfinder.network.response.LoginResponse
 import com.example.flavorfinder.network.response.PostBookmarkResponse
 import com.example.flavorfinder.network.response.PostCommentResponse
 import com.example.flavorfinder.network.response.RegisterResponse
-import com.example.flavorfinder.network.response.UpdateProfileResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body

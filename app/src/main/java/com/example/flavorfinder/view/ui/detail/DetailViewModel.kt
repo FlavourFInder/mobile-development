@@ -10,14 +10,10 @@ import com.example.flavorfinder.network.repository.MealRepository
 import com.example.flavorfinder.network.response.DataCommentItem
 import com.example.flavorfinder.network.response.DataUser
 import com.example.flavorfinder.network.response.DeleteBookmarkResponse
-import com.example.flavorfinder.network.response.GetCommentResponse
-import com.example.flavorfinder.network.response.GetUserProfileResponse
 import com.example.flavorfinder.network.response.PostCommentResponse
 import com.example.flavorfinder.pref.CommentWithUserProfile
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 
 class DetailViewModel(private val repository: MealRepository): ViewModel() {
 
