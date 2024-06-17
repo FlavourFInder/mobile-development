@@ -17,6 +17,7 @@ import com.example.flavorfinder.pref.CommentWithUserProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class DetailViewModel(private val repository: MealRepository): ViewModel() {
 
@@ -99,6 +100,16 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
                 _bookmarkResult.value = Result.Succes("Bookmark deleted!")
             } catch (e: Exception) {
                 _deleteBookmarkResult.value = Result.Error(e.message ?: "An error occured")
+            }
+        }
+    }
+
+    fun deleteComment(commentId: String, recipeId: String) {
+        viewModelScope.launch {
+            when (val result = repository.deleteComment(commentId)) {
+                is Result.Succes -> getComments(recipeId)
+                is Result.Error -> result.error
+                is Result.Loading -> {}
             }
         }
     }

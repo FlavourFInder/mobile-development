@@ -1,6 +1,7 @@
 package com.example.flavorfinder.network.retrofit
 
 import com.example.flavorfinder.network.response.DeleteBookmarkResponse
+import com.example.flavorfinder.network.response.DeleteCommentResponse
 import com.example.flavorfinder.network.response.ForgotPasswordResponse
 import com.example.flavorfinder.network.response.GetBookmarkResponse
 import com.example.flavorfinder.network.response.GetCommentResponse
@@ -92,5 +93,11 @@ interface AuthApiService {
         @Header("Authorization") token: String,
         @Path("recipe_id") recipeId: String
     ): GetCommentResponse
+
+    @DELETE("comments/{comment_id}")
+    suspend fun deleteComment(
+        @Header("Authorization") token: String,
+        @Path("comment_id") commentId: String
+    ): DeleteCommentResponse
 
 }

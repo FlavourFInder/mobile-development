@@ -150,9 +150,23 @@ open class MealRepository(
         return authApiService.getBookmark("Bearer $token")
     }
 
-    suspend fun deleteBookmark(bookmarkId: String){
+    suspend fun deleteBookmark(bookmarkId: String) {
         val token = getSession().first().token
         authApiService.deleteBookmark("Bearer $token", bookmarkId)
+    }
+
+    suspend fun deleteComment(commentId: String): Result<String> {
+        return try {
+            val token = getSession().first().token
+            val response = authApiService.deleteComment("Bearer $token", commentId)
+            if (response.status == 200) {
+                Result.Succes(response.message)
+            } else {
+                Result.Error("Failed to delete comment")
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "An error occured")
+        }
     }
 
     suspend fun getUser(): Result<GetUserProfileResponse> {

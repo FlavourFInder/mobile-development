@@ -1,23 +1,19 @@
 package com.example.flavorfinder.view.ui.profile
 
 import android.app.Dialog
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toFile
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -27,14 +23,10 @@ import com.example.flavorfinder.databinding.ActivityProfileBinding
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.ViewModelFactory
 import com.example.flavorfinder.helper.uriToFile
-import com.example.flavorfinder.network.response.Data
-import com.example.flavorfinder.network.response.LoginResponse
-import com.example.flavorfinder.pref.UserModel
 import com.example.flavorfinder.pref.UserPreference
 import com.example.flavorfinder.pref.dataStore
 import com.example.flavorfinder.view.ui.signin.SigninActivity
 import de.hdodenhof.circleimageview.CircleImageView
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ProfileActivity : AppCompatActivity() {
@@ -165,13 +157,13 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun showLogoutDialog() {
         val dialog = Dialog(this)
-        dialog.setContentView(R.layout.custom_dialog_logout)
+        dialog.setContentView(R.layout.custom_dialog_confirm)
         dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         dialog.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
         dialog.setCancelable(false)
 
         btnCancel = dialog.findViewById(R.id.btn_cancel)
-        btnConfirmLogout = dialog.findViewById(R.id.btn_dialog_logout)
+        btnConfirmLogout = dialog.findViewById(R.id.btn_confirm)
 
         btnCancel.setOnClickListener {
             dialog.dismiss()
