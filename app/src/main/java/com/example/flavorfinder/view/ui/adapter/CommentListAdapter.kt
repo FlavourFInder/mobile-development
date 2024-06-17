@@ -1,6 +1,7 @@
 package com.example.flavorfinder.view.ui.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -10,9 +11,16 @@ import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.ItemCardCommentBinding
 import com.example.flavorfinder.pref.CommentWithUserProfile
 
-class CommentListAdapter(private val onItemClickCallback: OnItemClickCallback): ListAdapter<CommentWithUserProfile, CommentListAdapter.ViewHolder>(DIFF_CALLBACK) {
+class CommentListAdapter(
+    private val onItemClickCallback: OnItemClickCallback,
+    private val currentUserId: String
+): ListAdapter<CommentWithUserProfile, CommentListAdapter.ViewHolder>(DIFF_CALLBACK) {
 
-    class ViewHolder(val binding: ItemCardCommentBinding, private val onItemClickCallback: OnItemClickCallback) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(
+        val binding: ItemCardCommentBinding,
+        private val onItemClickCallback: OnItemClickCallback,
+        private val currentUserId: String
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(comment: CommentWithUserProfile) {
             binding.tvUsername.text = comment.userProfile.username
@@ -22,8 +30,14 @@ class CommentListAdapter(private val onItemClickCallback: OnItemClickCallback): 
                 .placeholder(R.drawable.baseline_account_circle_24)
                 .into(binding.ivProfile)
             binding.tvDate.text = comment.comment.createdAt.slice(0..9)
-            binding.btnDelete.setOnClickListener {
-                onItemClickCallback.onButtonClick(adapterPosition)
+
+            if (comment.userProfile.userId == currentUserId) {
+                binding.btnDelete.visibility = View.VISIBLE
+                binding.btnDelete.setOnClickListener {
+                    onItemClickCallback.onButtonClick(adapterPosition)
+                }
+            } else {
+                binding.btnDelete.visibility = View.GONE
             }
         }
     }
@@ -33,7 +47,7 @@ class CommentListAdapter(private val onItemClickCallback: OnItemClickCallback): 
         viewType: Int
     ): ViewHolder {
         val binding = ItemCardCommentBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding, onItemClickCallback)
+        return ViewHolder(binding, onItemClickCallback, currentUserId)
     }
 
     override fun onBindViewHolder(holder: CommentListAdapter.ViewHolder, position: Int) {

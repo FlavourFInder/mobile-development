@@ -21,7 +21,6 @@ import com.example.flavorfinder.view.ui.register.RegisterActivity
 
 class SigninActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySigninBinding
-    private lateinit var userPreference: UserPreference
 
     private val viewModel by viewModels<SignInViewModel> {
         ViewModelFactory.getInstance(this)
@@ -63,13 +62,15 @@ class SigninActivity : AppCompatActivity() {
             viewModel.login(identifier, password).observe(this) {
                 when (it) {
                     is Result.Loading -> {
-                        showLoading()
+                        showLoading(true)
                     }
                     is Result.Error -> {
                         showToast(it.error)
+                        showLoading(false)
 
                     }
                     is Result.Succes -> {
+                        showLoading(false)
                         showToast(it.data.message)
                         onLoginSuccess()
                     }
@@ -95,7 +96,7 @@ class SigninActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun showLoading() {
+    private fun showLoading(isLoading: Boolean) {
         binding.progressBar.visibility = View.VISIBLE
     }
 

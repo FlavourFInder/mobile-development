@@ -1,10 +1,16 @@
 package com.example.flavorfinder.view.ui.main
 
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -15,12 +21,15 @@ import com.example.flavorfinder.databinding.ActivityMainBinding
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.ViewModelFactory
 import com.example.flavorfinder.network.response.GetUserProfileResponse
+import com.example.flavorfinder.pref.UserPreference
+import com.example.flavorfinder.pref.dataStore
 import com.example.flavorfinder.view.ui.filterAndCamera.CameraActivity
 import com.example.flavorfinder.view.ui.home.HomeFragment
 import com.example.flavorfinder.view.ui.profile.ProfileActivity
 import com.example.flavorfinder.view.ui.signin.SigninActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private val viewModel by viewModels<MainViewModel> {
@@ -28,6 +37,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityMainBinding
+
+    private lateinit var userPreference: UserPreference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,9 +90,11 @@ class MainActivity : AppCompatActivity() {
                     setupProfileIcon(result.data)
                 }
                 is Result.Error -> {
-                    Toast.makeText(this, "Error: ${result.error}", Toast.LENGTH_SHORT).show()
+                    handleError(result.error)
                 }
-                is Result.Loading -> {}
+                is Result.Loading -> {
+                    showLoading(true)
+                }
             }
         }
         viewModel.getUserImageProfile()
@@ -125,6 +138,49 @@ class MainActivity : AppCompatActivity() {
                 finish()
             }
         }
+    }
+
+    private fun handleError(errorMessage: String) {
+        when {
+            errorMessage.contains("401") -> {
+                showSessionExpiredDialog()
+            }
+            errorMessage.contains("403") -> {
+                showSessionExpiredDialog()
+            }
+            else -> {
+                showToast(errorMessage)
+            }
+        }
+    }
+
+    private fun showSessionExpiredDialog() {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.custom_dialog_session_expired)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog.window?.setBackgroundDrawable(ContextCompat.getDrawable(this, R.drawable.custom_dialog_bg))
+        dialog.setCancelable(false)
+
+        val btnDialogSessionExpired: Button = dialog.findViewById(R.id.btn_dialog_session_expired)
+        btnDialogSessionExpired.setOnClickListener {
+            dialog.dismiss()
+            lifecycleScope.launch {
+                userPreference = UserPreference.getInstance(dataStore)
+                userPreference.logout()
+                val intent = Intent(this@MainActivity, SigninActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+            }
+        }
+        dialog.show()
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showLoading(isLoading: Boolean) {
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
     override fun onResume() {

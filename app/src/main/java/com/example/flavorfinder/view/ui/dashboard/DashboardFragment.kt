@@ -93,7 +93,10 @@ class DashboardFragment : Fragment() {
     private fun setupRecyclerView() {
         bookmarkListAdapter = BookmarkListAdapter()
         binding.rvBookmark.apply {
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = LinearLayoutManager(context).apply {
+                reverseLayout = true
+                stackFromEnd = true
+            }
             adapter = bookmarkListAdapter
         }
         bookmarkListAdapter.setOnItemClickCallback(object : BookmarkListAdapter.OnItemClickCallback {
