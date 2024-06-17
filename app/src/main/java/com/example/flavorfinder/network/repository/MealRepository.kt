@@ -135,15 +135,15 @@ open class MealRepository(
         }
     }
 
-//    suspend fun getComments(recipeId: String): Result<GetCommentResponse> {
-//        return try {
-//            val token = userPreference.getSession().first().token
-//            val response = authApiService.getComments("Bearer $token", recipeId)
-//            Result.Succes(response)
-//        } catch (e: Exception) {
-//            Result.Error(e.message.toString())
-//        }
-//    }
+    suspend fun getComments(recipeId: String): Result<GetCommentResponse> {
+        return try {
+            val token = userPreference.getSession().first().token
+            val response = authApiService.getComments("Bearer $token", recipeId)
+            Result.Succes(response)
+        } catch (e: Exception) {
+            Result.Error(e.message.toString())
+        }
+    }
 
     suspend fun getBookmarks(): GetBookmarkResponse {
         val token = userPreference.getSession().first().token

@@ -1,15 +1,19 @@
 package com.example.flavorfinder.view.ui.detail
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.network.repository.MealRepository
+import com.example.flavorfinder.network.response.DataCommentItem
+import com.example.flavorfinder.network.response.DataUser
 import com.example.flavorfinder.network.response.DeleteBookmarkResponse
 import com.example.flavorfinder.network.response.GetCommentResponse
 import com.example.flavorfinder.network.response.GetUserProfileResponse
 import com.example.flavorfinder.network.response.PostCommentResponse
+import com.example.flavorfinder.pref.CommentWithUserProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -25,14 +29,28 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
     private val _commentResult = MutableLiveData<Result<PostCommentResponse>>()
     val commentResult: LiveData<Result<PostCommentResponse>> = _commentResult
 
-    private val _comment = MutableLiveData<Result<GetCommentResponse>>()
-    val comment: LiveData<Result<GetCommentResponse>> = _comment
+    private val _comments = MutableLiveData<List<DataCommentItem>>()
+    val comments: LiveData<List<DataCommentItem>> = _comments
+
+    private val _commentRes = MutableLiveData<Result<List<CommentWithUserProfile>>>()
+    val commentRes: LiveData<Result<List<CommentWithUserProfile>>> = _commentRes
+
+    private val _userProfiles = MutableLiveData<Map<String, DataUser>>()
+    val userProfiles: LiveData<Map<String, DataUser>> = _userProfiles
+
+    val commentsWithUserProfiles: LiveData<List<CommentWithUserProfile>> = MediatorLiveData<List<CommentWithUserProfile>>().apply {
+        addSource(_comments) { comments ->
+            val profiles = _userProfiles.value ?: emptyMap()
+            value = combineData(comments, profiles)
+        }
+        addSource(_userProfiles) { profiles ->
+            val comments = _comments.value ?: emptyList()
+            value = combineData(comments, profiles)
+        }
+    }
 
     private val _deleteBookmarkResult = MutableLiveData<Result<DeleteBookmarkResponse>>()
     val deleteBookmarkResult: LiveData<Result<DeleteBookmarkResponse>> = _deleteBookmarkResult
-
-    private val _bookmarkStatus = MutableLiveData<Boolean>()
-    val bookmarkStatus: LiveData<Boolean> = _bookmarkStatus
 
     fun checkIfBookmarked(recipeId: Int): LiveData<Result<String?>> {
         val result = MutableLiveData<Result<String?>>()
@@ -85,18 +103,45 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
         }
     }
 
-    fun getUser(userId: String): LiveData<Result<GetUserProfileResponse>> {
-        val result = MutableLiveData<Result<GetUserProfileResponse>>()
+    fun getComments(recipeId: String) {
         viewModelScope.launch {
-            result.value = repository.getUserById(userId)
+            _commentRes.value = Result.Loading
+            try {
+                val response = repository.getComments(recipeId)
+                if (response is Result.Succes) {
+                    val comments = response.data.data
+                    _comments.value = comments
+                    loadUserProfiles(comments.map { it.userId })
+                } else if (response is Result.Error) {
+                    _commentRes.value = Result.Error(response.error)
+                }
+            } catch (e: Exception) {
+                _commentResult.value = Result.Error(e.message ?: "Failed to load comments")
+            }
         }
-        return result
     }
 
-//    fun getComments(recipeId: String) {
-//        viewModelScope.launch {
-//            val result = repository.getComments(recipeId)
-//            _comment.value = result
-//        }
-//    }
+    private fun loadUserProfiles(userIds: List<String>) {
+        viewModelScope.launch {
+            val userProfileMap = mutableMapOf<String, DataUser>()
+            for (userId in userIds) {
+                val result = repository.getUserById(userId)
+                if (result is Result.Succes) {
+                    userProfileMap[userId] = result.data.data
+                }
+            }
+            _userProfiles.value = userProfileMap
+        }
+    }
+
+    private fun combineData(comments: List<DataCommentItem>, profiles: Map<String, DataUser>): List<CommentWithUserProfile> {
+        return comments.mapNotNull { comment ->
+            val userProfile = profiles[comment.userId]
+            if (userProfile != null) {
+                CommentWithUserProfile(comment, userProfile)
+            } else {
+                null
+            }
+        }
+    }
 }

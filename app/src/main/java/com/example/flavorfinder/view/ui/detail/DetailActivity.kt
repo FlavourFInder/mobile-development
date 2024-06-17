@@ -16,7 +16,6 @@ import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.ViewModelFactory
 import com.example.flavorfinder.network.repository.MealRepository
 import com.example.flavorfinder.network.response.GetBookmarkRecipe
-import com.example.flavorfinder.network.response.GetUserProfileResponse
 import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.pref.UserPreference
 import com.example.flavorfinder.pref.dataStore
@@ -31,7 +30,6 @@ import kotlinx.coroutines.withContext
 class DetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailBinding
-    private lateinit var ingredientAdapter: IngredientAdapter
     private lateinit var commentListAdapter: CommentListAdapter
     private val viewModel by viewModels<DetailViewModel> {
         ViewModelFactory.getInstance(this)
@@ -41,7 +39,6 @@ class DetailActivity : AppCompatActivity() {
     private var recipeId: Int? = 0
     private var isBookmarked = false
     private var bookmarkId: String? = null
-    private var userProfileMap: MutableMap<String, GetUserProfileResponse> = mutableMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +47,7 @@ class DetailActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
 
         userPreference = UserPreference.getInstance(dataStore)
-        repository = Injection.provideRepository(this) ?: throw IllegalStateException("Repository not initialized")
+        repository = Injection.provideRepository(this)
         val mealItem = intent.getParcelableExtra<MealsItem>("data")
 
         val bookmarkRecipe = intent.getParcelableExtra<GetBookmarkRecipe>("bookmark")
@@ -60,14 +57,18 @@ class DetailActivity : AppCompatActivity() {
             setupDetailMenu(mealItem)
             checkIfBookmarked(recipeId!!)
 
+            setupCommentsRecyclerView(recipeId.toString())
             binding.commentEditText.setPostButtonClickListener {
                 postComment()
             }
+
+
         } else if (bookmarkRecipe != null) {
             recipeId = bookmarkRecipe.idMeal?.toInt()
             fetchAndSetupDetailMenu(bookmarkRecipe.idMeal)
             checkIfBookmarked(bookmarkRecipe.idMeal?.toInt()!!)
 
+            setupCommentsRecyclerView(bookmarkRecipe.idMeal)
             binding.commentEditText.setPostButtonClickListener {
                 postComment()
             }
@@ -75,6 +76,11 @@ class DetailActivity : AppCompatActivity() {
             showToast("Failed to load data")
         }
 
+        observeViewModel()
+
+    }
+
+    private fun observeViewModel() {
         viewModel.commentResult.observe(this) { result ->
             when (result) {
                 is Result.Succes -> {
@@ -105,6 +111,9 @@ class DetailActivity : AppCompatActivity() {
             this.bookmarkId = bookmarkId
         }
 
+        viewModel.commentsWithUserProfiles.observe(this) { comments ->
+            commentListAdapter.submitList(comments)
+        }
     }
 
 
@@ -133,11 +142,15 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun setupDetailMenu(items: MealsItem) {
+        if (isDestroyed) return
+
         binding.apply {
             tvMenuName.text = items.strMeal
-            Glide.with(this@DetailActivity)
-                .load(items.strMealThumb)
-                .into(ivDetail)
+            if (!this@DetailActivity.isDestroyed) {
+                Glide.with(this@DetailActivity)
+                    .load(items.strMealThumb)
+                    .into(ivDetail)
+            }
 
             val ingredients = listOf(
                 items.strMeasure1 + " " + items.strIngredient1, items.strMeasure2 + " " + items.strIngredient2, items.strMeasure3 + " " + items.strIngredient3, items.strMeasure4 + " " + items.strIngredient4,
@@ -145,7 +158,7 @@ class DetailActivity : AppCompatActivity() {
                 items.strMeasure9 + " " + items.strIngredient9, items.strMeasure10 + " " + items.strIngredient10, items.strMeasure11 + " " + items.strIngredient11, items.strMeasure12 + " " + items.strIngredient12,
                 items.strMeasure13 + " " + items.strIngredient13, items.strMeasure14 + " " + items.strIngredient14, items.strMeasure15 + " " + items.strIngredient15, items.strMeasure16 + " " + items.strIngredient16,
                 items.strMeasure17 + " " + items.strIngredient17, items.strMeasure18 + " " + items.strIngredient18, items.strMeasure19 + " " + items.strIngredient19, items.strMeasure20 + " " + items.strIngredient20
-            ).filterNotNull().filter { it.isNotBlank() }
+            ).filter { it.isNotBlank() }
 
             binding.rvIngredient.layoutManager = LinearLayoutManager(this@DetailActivity)
             binding.rvIngredient.adapter = IngredientAdapter(ingredients)
@@ -208,22 +221,22 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun fetchUserProfiles(userIds: List<String>, callback: (Map<String, GetUserProfileResponse>) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val userProfileMap = mutableMapOf<String, GetUserProfileResponse>()
-            for (userId in userIds) {
-                val result = viewModel.getUser(userId).value
-                if (result is Result.Succes) {
-                    userProfileMap[userId] = result.data
-                }
-            }
-            withContext(Dispatchers.Main) {
-                callback(userProfileMap)
-            }
+    private fun setupCommentsRecyclerView(recipeId: String) {
+        commentListAdapter = CommentListAdapter()
+        binding.rvComment.apply {
+            layoutManager = LinearLayoutManager(this@DetailActivity)
+            adapter = commentListAdapter
         }
+
+        viewModel.getComments(recipeId)
     }
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        observeViewModel()
     }
 }

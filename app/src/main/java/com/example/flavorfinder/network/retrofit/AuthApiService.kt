@@ -87,10 +87,10 @@ interface AuthApiService {
         @Field("comment_text") commentText: String
     ): PostCommentResponse
 
-//    @GET("recipe_id/{comments}")
-//    suspend fun getComments(
-//        @Header("Authorization") token: String,
-//        @Path("user_id") userId: String
-//    ): GetCommentResponse
+    @GET("{recipe_id}/comments")
+    suspend fun getComments(
+        @Header("Authorization") token: String,
+        @Path("recipe_id") recipeId: String
+    ): GetCommentResponse
 
 }
