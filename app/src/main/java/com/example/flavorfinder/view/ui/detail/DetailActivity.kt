@@ -1,9 +1,13 @@
 package com.example.flavorfinder.view.ui.detail
 
+import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -27,7 +31,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class DetailActivity : AppCompatActivity() {
+class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallback {
 
     private lateinit var binding: ActivityDetailBinding
     private lateinit var commentListAdapter: CommentListAdapter
@@ -39,6 +43,10 @@ class DetailActivity : AppCompatActivity() {
     private var recipeId: Int? = 0
     private var isBookmarked = false
     private var bookmarkId: String? = null
+    private lateinit var commentId: String
+
+    private lateinit var btnConfirm: Button
+    private lateinit var btnCancel: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -175,6 +183,7 @@ class DetailActivity : AppCompatActivity() {
             CoroutineScope(Dispatchers.Main).launch {
                 val userId = repository.getSession().first().userId
                 viewModel.addComment(recipeId.toString(), userId, commentText)
+                viewModel.getComments(recipeId.toString())
             }
         } else {
             showToast("Comment cannot be empty")
@@ -222,7 +231,7 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun setupCommentsRecyclerView(recipeId: String) {
-        commentListAdapter = CommentListAdapter()
+        commentListAdapter = CommentListAdapter(this)
         binding.rvComment.apply {
             layoutManager = LinearLayoutManager(this@DetailActivity)
             adapter = commentListAdapter
@@ -235,6 +244,42 @@ class DetailActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
+    override fun onButtonClick(position: Int) {
+        val comments = viewModel.commentsWithUserProfiles.value?.toMutableList()
+        if (comments != null && position >= 0 && position < comments.size) {
+            val comment = comments[position]
+            showDialogDeleteComment(comment.comment.commentId, comment.comment.recipeId)
+            commentListAdapter.submitList(comments)
+        }
+    }
+
+    private fun showDialogDeleteComment(commentId: String, recipeId: String) {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.custom_dialog_confirm)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
+        dialog.setCancelable(false)
+
+        btnConfirm = dialog.findViewById(R.id.btn_confirm)
+        btnCancel = dialog.findViewById(R.id.btn_cancel)
+
+        dialog.findViewById<TextView>(R.id.tv_titile_dialog).text =
+            getString(R.string.confirm_delete)
+        dialog.findViewById<TextView>(R.id.tv_message).text =
+            getString(R.string.message_confirm_delete_comment)
+
+        btnConfirm.text = getString(R.string.delete)
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnConfirm.setOnClickListener {
+            viewModel.deleteComment(commentId, recipeId)
+            dialog.dismiss()
+        }
+        dialog.show()
+    }
     override fun onResume() {
         super.onResume()
         observeViewModel()
