@@ -10,7 +10,6 @@ import androidx.paging.liveData
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.reduceFileImage
 import com.example.flavorfinder.network.MealPagingSource
-import com.example.flavorfinder.network.response.DeleteBookmarkResponse
 import com.example.flavorfinder.network.response.FilterIngredientResponse
 import com.example.flavorfinder.network.response.ForgotPasswordResponse
 import com.example.flavorfinder.network.response.GetBookmarkResponse
@@ -22,7 +21,6 @@ import com.example.flavorfinder.network.response.MealsResponse
 import com.example.flavorfinder.network.response.PostBookmarkResponse
 import com.example.flavorfinder.network.response.PostCommentResponse
 import com.example.flavorfinder.network.response.RegisterResponse
-import com.example.flavorfinder.network.retrofit.ApiConfig
 import com.example.flavorfinder.network.retrofit.AuthApiService
 import com.example.flavorfinder.network.retrofit.MealsApiService
 import com.example.flavorfinder.pref.UserModel

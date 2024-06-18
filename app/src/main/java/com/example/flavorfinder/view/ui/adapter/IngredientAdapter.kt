@@ -2,12 +2,8 @@ package com.example.flavorfinder.view.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.flavorfinder.databinding.ItemIngredientBinding
-import com.example.flavorfinder.network.response.MealsItem
-import com.example.flavorfinder.view.ui.adapter.MealListAdapter.Companion.DIFF_CALLBACK
 
 class IngredientAdapter(private val ingredientList: List<String>) : RecyclerView.Adapter<IngredientAdapter.ViewHolder>() {
 

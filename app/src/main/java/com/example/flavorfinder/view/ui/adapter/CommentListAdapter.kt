@@ -9,9 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.flavorfinder.R
 import com.example.flavorfinder.databinding.ItemCardCommentBinding
-import com.example.flavorfinder.network.response.CommentData
-import com.example.flavorfinder.network.response.GetUserProfileResponse
-import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.pref.CommentWithUserProfile
 
 class CommentListAdapter(

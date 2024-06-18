@@ -1,6 +1,5 @@
 package com.example.flavorfinder.view.ui.profile
 
-import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,9 +7,7 @@ import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.network.repository.MealRepository
-import com.example.flavorfinder.network.response.GetBookmarkResponse
 import com.example.flavorfinder.network.response.GetUserProfileResponse
-import com.example.flavorfinder.pref.UserModel
 import com.example.flavorfinder.pref.UserPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
