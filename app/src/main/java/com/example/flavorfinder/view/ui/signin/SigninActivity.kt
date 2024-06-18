@@ -1,9 +1,12 @@
 package com.example.flavorfinder.view.ui.signin
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -65,9 +68,8 @@ class SigninActivity : AppCompatActivity() {
                         showLoading(true)
                     }
                     is Result.Error -> {
-                        showToast(it.error)
                         showLoading(false)
-
+                        handleError(it.error)
                     }
                     is Result.Succes -> {
                         showLoading(false)
@@ -92,14 +94,40 @@ class SigninActivity : AppCompatActivity() {
 
     }
 
+    private fun showDialog() {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.dialog_invalid_input)
+        dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog.window?.setBackgroundDrawable(getDrawable(R.drawable.custom_dialog_bg))
+        dialog.setCancelable(false)
+
+        val btnGoBack : Button = dialog.findViewById(R.id.btn_go_back)
+        btnGoBack.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.show()
+    }
+
+    private fun handleError(errorMessage: String) {
+        when {
+            errorMessage.contains("404") -> {
+                showDialog()
+            }
+            else -> {
+                showToast(errorMessage)
+            }
+        }
+    }
+
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun showLoading(isLoading: Boolean) {
-        binding.progressBar.visibility = View.VISIBLE
+        binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
+    @Deprecated("This method has been deprecated in favor of using the\n      {@link OnBackPressedDispatcher} via {@link #getOnBackPressedDispatcher()}.\n      The OnBackPressedDispatcher controls how back button events are dispatched\n      to one or more {@link OnBackPressedCallback} objects.")
     override fun onBackPressed() {
         super.onBackPressed()
 

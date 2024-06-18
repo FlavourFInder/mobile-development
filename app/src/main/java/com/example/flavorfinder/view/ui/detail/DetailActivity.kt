@@ -131,12 +131,12 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
                     Log.d(result.error, "failed to add comment")
                     showLoading(false)
                 }
-                is Result.Loading -> {showLoading(true)}
+                is Result.Loading -> { showLoading(true) }
             }
         }
 
         viewModel.commentsWithUserProfiles.observe(this) { comments ->
-            commentListAdapter.submitList(comments)
+            commentListAdapter.submitList(comments.asReversed())
 
         }
 

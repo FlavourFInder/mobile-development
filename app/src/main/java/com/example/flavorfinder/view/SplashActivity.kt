@@ -28,6 +28,8 @@ class SplashActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySplashBinding
     private lateinit var userPreference: UserPreference
 
+    private val SPLASH_DISPLAY_LENGTH = 2000L
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +48,7 @@ class SplashActivity : AppCompatActivity() {
         playAnimation(binding.tvLogo)
 
         lifecycleScope.launch {
+            delay(SPLASH_DISPLAY_LENGTH)
             if (isTokenExpired()) {
                 val intent = Intent(this@SplashActivity, SigninActivity::class.java)
                 startActivity(intent)

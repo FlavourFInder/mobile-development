@@ -153,6 +153,6 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
             } else {
                 null
             }
-        }
+        }.asReversed()
     }
 }
