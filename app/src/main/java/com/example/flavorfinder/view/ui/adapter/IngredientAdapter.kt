@@ -14,7 +14,7 @@ class IngredientAdapter(private val ingredientList: List<String>) : RecyclerView
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = ingredientList.size
+    override fun getItemCount() = ingredientList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding.tvIngredientName.text = ingredientList[position]

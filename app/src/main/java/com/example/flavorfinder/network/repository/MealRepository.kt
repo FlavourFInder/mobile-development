@@ -10,6 +10,7 @@ import androidx.paging.liveData
 import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.reduceFileImage
 import com.example.flavorfinder.network.MealPagingSource
+import com.example.flavorfinder.network.response.DeleteCommentResponse
 import com.example.flavorfinder.network.response.FilterIngredientResponse
 import com.example.flavorfinder.network.response.ForgotPasswordResponse
 import com.example.flavorfinder.network.response.GetBookmarkResponse
@@ -153,12 +154,12 @@ open class MealRepository(
         authApiService.deleteBookmark("Bearer $token", bookmarkId)
     }
 
-    suspend fun deleteComment(commentId: String): Result<String> {
+    suspend fun deleteComment(commentId: String): Result<DeleteCommentResponse> {
         return try {
             val token = getSession().first().token
             val response = authApiService.deleteComment("Bearer $token", commentId)
             if (response.status == 200) {
-                Result.Succes(response.message)
+                Result.Succes(response)
             } else {
                 Result.Error("Failed to delete comment")
             }

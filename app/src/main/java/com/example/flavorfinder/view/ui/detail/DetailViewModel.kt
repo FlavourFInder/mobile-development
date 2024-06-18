@@ -1,5 +1,6 @@
 package com.example.flavorfinder.view.ui.detail
 
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -22,6 +23,10 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
 
     private val _bookmarkId = MutableLiveData<String?>()
     val bookmarkId: LiveData<String?> = _bookmarkId
+
+    private val _deleteCommentStatus = MutableLiveData<Result<Unit>>()
+    val deleteCommentStatus: LiveData<Result<Unit>>
+        get() = _deleteCommentStatus
 
     private val _commentResult = MutableLiveData<Result<PostCommentResponse>>()
     val commentResult: LiveData<Result<PostCommentResponse>> = _commentResult
@@ -100,12 +105,19 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
         }
     }
 
-    fun deleteComment(commentId: String, recipeId: String) {
+    fun deleteComment(commentId: String) {
         viewModelScope.launch {
-            when (val result = repository.deleteComment(commentId)) {
-                is Result.Succes -> getComments(recipeId)
-                is Result.Error -> result.error
-                is Result.Loading -> {}
+            try {
+                val result = repository.deleteComment(commentId)
+                _deleteCommentStatus.value = when (result) {
+                    is Result.Succes -> {
+                        Result.Succes(Unit)
+                    }
+                    is Result.Error -> Result.Error(result.error)
+                    is Result.Loading -> Result.Loading
+                }
+            } catch (e: Exception) {
+                _deleteCommentStatus.value = Result.Error(e.message ?: "An error occurred")
             }
         }
     }
@@ -151,4 +163,5 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
             }
         }.asReversed()
     }
+
 }

@@ -136,8 +136,7 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
         }
 
         viewModel.commentsWithUserProfiles.observe(this) { comments ->
-            commentListAdapter.submitList(comments.asReversed())
-
+            commentListAdapter.submitList(comments)
         }
 
     }
@@ -152,7 +151,6 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
                 if (mealItem != null) {
                     withContext(Dispatchers.Main) {
                         setupDetailMenu(mealItem)
-                        observeComment()
                     }
                 } else {
                     withContext(Dispatchers.Main) {
@@ -184,7 +182,7 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
                 items.strMeasure9 + " " + items.strIngredient9, items.strMeasure10 + " " + items.strIngredient10, items.strMeasure11 + " " + items.strIngredient11, items.strMeasure12 + " " + items.strIngredient12,
                 items.strMeasure13 + " " + items.strIngredient13, items.strMeasure14 + " " + items.strIngredient14, items.strMeasure15 + " " + items.strIngredient15, items.strMeasure16 + " " + items.strIngredient16,
                 items.strMeasure17 + " " + items.strIngredient17, items.strMeasure18 + " " + items.strIngredient18, items.strMeasure19 + " " + items.strIngredient19, items.strMeasure20 + " " + items.strIngredient20
-            ).filter { it.isNotBlank() }
+            ).filter { it.isNotBlank() && !it.contains("null null") }
 
             binding.rvIngredient.layoutManager = LinearLayoutManager(this@DetailActivity)
             binding.rvIngredient.adapter = IngredientAdapter(ingredients)
@@ -251,10 +249,7 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
     private fun setupCommentsRecyclerView(recipeId: String) {
         commentListAdapter = CommentListAdapter(this, currentUserId)
         binding.rvComment.apply {
-            layoutManager = LinearLayoutManager(this@DetailActivity).apply {
-                reverseLayout = true
-                stackFromEnd = true
-            }
+            layoutManager = LinearLayoutManager(this@DetailActivity)
             adapter = commentListAdapter
         }
 
@@ -271,6 +266,7 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
             val comment = comments[position]
             showDialogDeleteComment(comment.comment.commentId, comment.comment.recipeId)
             commentListAdapter.submitList(comments)
+            observeComment()
         }
     }
 
@@ -296,7 +292,21 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
         }
 
         btnConfirm.setOnClickListener {
-            viewModel.deleteComment(commentId, recipeId)
+            viewModel.deleteComment(commentId)
+            viewModel.deleteCommentStatus.observe(this) { result ->
+                when (result) {
+                    is Result.Succes -> {
+                        showToast("Comment deleted!")
+                        viewModel.getComments(recipeId)
+                    }
+                    is Result.Error -> {
+                        showToast("Failed to delete comment")
+                    }
+                    is Result.Loading -> {
+                        showLoading(true)
+                    }
+                }
+            }
             dialog.dismiss()
         }
         dialog.show()
