@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.network.repository.MealRepository
+import com.example.flavorfinder.network.response.GetUserProfileResponse
 import com.example.flavorfinder.network.response.MealsItem
 import kotlinx.coroutines.launch
 
@@ -22,6 +24,17 @@ class HomeViewModel(private val mealRepository: MealRepository) : ViewModel() {
 
     private val _searchResults = MutableLiveData<List<MealsItem>?>()
     val searchResults: LiveData<List<MealsItem>?> = _searchResults
+
+    private val _user = MutableLiveData<Result<GetUserProfileResponse>>()
+    val user: LiveData<Result<GetUserProfileResponse>> = _user
+
+    fun getUserData() {
+        viewModelScope.launch {
+            _user.value = Result.Loading
+            val result = mealRepository.getUser()
+            _user.value = result
+        }
+    }
 
     fun searchMeals(query: String) {
         viewModelScope.launch {

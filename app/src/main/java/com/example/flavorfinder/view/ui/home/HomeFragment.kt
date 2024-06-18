@@ -6,15 +6,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.flavorfinder.databinding.FragmentHomeBinding
+import com.example.flavorfinder.helper.Result
 import com.example.flavorfinder.helper.ViewModelFactory
 import com.example.flavorfinder.network.response.MealsItem
 import com.example.flavorfinder.view.ui.adapter.MealListAdapter
-import com.example.flavorfinder.view.ui.detail.DetailActivity
 import com.example.flavorfinder.view.ui.adapter.SearchResultAdapter
+import com.example.flavorfinder.view.ui.detail.DetailActivity
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment() {
 
@@ -40,6 +44,10 @@ class HomeFragment : Fragment() {
         setupRecyclerView()
         observeViewModel()
         getData()
+
+        lifecycleScope.launch {
+            homeViewModel.getUserData()
+        }
     }
 
     override fun onDestroyView() {
@@ -82,15 +90,33 @@ class HomeFragment : Fragment() {
         startActivity(intent)
     }
 
+    @SuppressLint("SetTextI18n")
     private fun getData() {
         homeViewModel.meal.observe(viewLifecycleOwner) {
             if (searchResultAdapter == null) {
                 menuListAdapter.submitData(lifecycle, it)
             }
         }
+
+        homeViewModel.user.observe(viewLifecycleOwner) { user ->
+            when (user) {
+                is Result.Succes -> {
+                    val userData = user.data.data
+                    binding.tvGreeting.text = "Hi, ${userData.username}! Do you have something to cook?"
+                }
+                is Result.Error -> {
+                    showToast("Failed to load user")
+                }
+                is Result.Loading -> { }
+            }
+        }
     }
 
     fun performSearch(query: String) {
         homeViewModel.searchMeals(query)
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 }

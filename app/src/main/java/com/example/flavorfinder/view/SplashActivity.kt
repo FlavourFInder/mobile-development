@@ -16,6 +16,7 @@ import com.example.flavorfinder.pref.UserPreference
 import com.example.flavorfinder.pref.dataStore
 import com.example.flavorfinder.view.ui.main.MainActivity
 import com.example.flavorfinder.view.ui.signin.SigninActivity
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @SuppressLint("CustomSplashScreen")
@@ -23,6 +24,8 @@ class SplashActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySplashBinding
     private lateinit var userPreference: UserPreference
+
+    private val SPLASH_DISPLAY_LENGTH = 2000L
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +45,7 @@ class SplashActivity : AppCompatActivity() {
         playAnimation(binding.tvLogo)
 
         lifecycleScope.launch {
+            delay(SPLASH_DISPLAY_LENGTH)
             if (isTokenExpired()) {
                 val intent = Intent(this@SplashActivity, SigninActivity::class.java)
                 startActivity(intent)

@@ -47,7 +47,11 @@ class ForgotPasswordActivity : AppCompatActivity() {
                         }
                         is Result.Error -> {
                             hideLoading()
-                            showToast(it.error)
+                            if (it.error.contains("500")) {
+                                showToast("Failed to send password reset email")
+                            } else {
+                                showToast(it.error)
+                            }
                         }
                         is Result.Succes -> {
                             hideLoading()

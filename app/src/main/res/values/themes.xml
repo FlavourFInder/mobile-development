@@ -15,6 +15,7 @@
 
         <item name="cardBackgroundColor">@color/white</item>
         <item name="android:navigationBarColor">@color/green</item>
+
     </style>
 
     <style name="Theme.FlavorFinder" parent="Base.Theme.FlavorFinder" />
