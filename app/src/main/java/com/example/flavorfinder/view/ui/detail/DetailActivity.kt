@@ -93,7 +93,6 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
 
         observeBookmark()
         observeComment()
-
     }
 
     private fun observeBookmark() {
@@ -256,6 +255,7 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
             adapter = commentListAdapter
         }
 
+        showLoadingComment(false)
         viewModel.getComments(recipeId)
     }
 
@@ -267,13 +267,11 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
         val comments = viewModel.commentsWithUserProfiles.value?.toMutableList()
         if (comments != null && position >= 0 && position < comments.size) {
             val comment = comments[position]
-            showDialogDeleteComment(comment.comment.commentId, comment.comment.recipeId)
-            commentListAdapter.submitList(comments)
-            observeComment()
+            showDialogDeleteComment(comment.comment.commentId)
         }
     }
 
-    private fun showDialogDeleteComment(commentId: String, recipeId: String) {
+    private fun showDialogDeleteComment(commentId: String) {
         val dialog = Dialog(this)
         dialog.setContentView(R.layout.custom_dialog_confirm)
         dialog.window?.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -295,19 +293,15 @@ class DetailActivity : AppCompatActivity(), CommentListAdapter.OnItemClickCallba
         }
 
         btnConfirm.setOnClickListener {
-            viewModel.deleteComment(commentId)
-            viewModel.deleteCommentStatus.observe(this) { result ->
-                when (result) {
-                    is Result.Succes -> {
-                        showToast("Comment deleted!")
-                        viewModel.getComments(recipeId)
-                    }
-                    is Result.Error -> {
-                        showToast("Failed to delete comment")
-                    }
-                    is Result.Loading -> {
-                        showLoading(true)
-                    }
+            viewModel.deleteComment(commentId, recipeId.toString())
+            viewModel.commentsWithUserProfiles.observe(this) { result ->
+                try {
+                    commentListAdapter.submitList(result)
+                    showToast("Comment deleted successfully")
+                    showLoadingComment(false)
+                } catch (e: Exception) {
+                    showToast("Failed to delete comments: ${e.message}")
+                    showLoadingComment(false)
                 }
             }
             dialog.dismiss()

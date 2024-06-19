@@ -26,8 +26,10 @@ import com.example.flavorfinder.network.retrofit.AuthApiService
 import com.example.flavorfinder.network.retrofit.MealsApiService
 import com.example.flavorfinder.pref.UserModel
 import com.example.flavorfinder.pref.UserPreference
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -154,17 +156,17 @@ open class MealRepository(
         authApiService.deleteBookmark("Bearer $token", bookmarkId)
     }
 
-    suspend fun deleteComment(commentId: String): Result<DeleteCommentResponse> {
-        return try {
-            val token = getSession().first().token
-            val response = authApiService.deleteComment("Bearer $token", commentId)
-            if (response.status == 200) {
-                Result.Succes(response)
-            } else {
-                Result.Error("Failed to delete comment")
+    suspend fun deleteComment(commentId: String): Result<String> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val token = getSession().first().token
+                val response = authApiService.deleteComment("Bearer $token", commentId)
+                Result.Succes(response.message)
+            } catch (e: HttpException) {
+                Result.Error(e.message())
+            } catch (e: Exception) {
+                Result.Error(e.localizedMessage ?: "An unexpected error occurred")
             }
-        } catch (e: Exception) {
-            Result.Error(e.message ?: "An error occured")
         }
     }
 

@@ -24,8 +24,8 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
     private val _bookmarkId = MutableLiveData<String?>()
     val bookmarkId: LiveData<String?> = _bookmarkId
 
-    private val _deleteCommentStatus = MutableLiveData<Result<Unit>>()
-    val deleteCommentStatus: LiveData<Result<Unit>>
+    private val _deleteCommentStatus = MutableLiveData<Result<String>>()
+    val deleteCommentStatus: LiveData<Result<String>>
         get() = _deleteCommentStatus
 
     private val _commentResult = MutableLiveData<Result<PostCommentResponse>>()
@@ -105,19 +105,16 @@ class DetailViewModel(private val repository: MealRepository): ViewModel() {
         }
     }
 
-    fun deleteComment(commentId: String) {
+    fun deleteComment(commentId: String, recipeId: String) {
         viewModelScope.launch {
-            try {
-                val result = repository.deleteComment(commentId)
-                _deleteCommentStatus.value = when (result) {
-                    is Result.Succes -> {
-                        Result.Succes(Unit)
-                    }
-                    is Result.Error -> Result.Error(result.error)
-                    is Result.Loading -> Result.Loading
+            _deleteCommentStatus.value = Result.Loading
+            when (repository.deleteComment(commentId)) {
+                is Result.Succes -> {
+                    _deleteCommentStatus.value = Result.Succes("Comment deleted")
+                    getComments(recipeId)
                 }
-            } catch (e: Exception) {
-                _deleteCommentStatus.value = Result.Error(e.message ?: "An error occurred")
+                is Result.Error -> _deleteCommentStatus.value = Result.Error("Failed to delete comment")
+                is Result.Loading -> _deleteCommentStatus.value = Result.Loading
             }
         }
     }
