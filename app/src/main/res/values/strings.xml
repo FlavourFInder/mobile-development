@@ -53,4 +53,5 @@
     <string name="login_failed">Login Failed</string>
     <string name="message_login_failed">Login failed! invalid email/username \nor password.</string>
     <string name="go_back">Go back</string>
+    <string name="search_here">Search here...</string>
 </resources>

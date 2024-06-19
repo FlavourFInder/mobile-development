@@ -81,6 +81,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:strokeColor="@color/green"
+        android:hint="@string/search_here"
         style="@style/Widget.Material3.SearchBar.Outlined">
     </com.google.android.material.search.SearchBar>
 

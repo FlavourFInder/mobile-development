@@ -15,6 +15,7 @@
 
         <item name="cardBackgroundColor">@color/black</item>
         <item name="android:navigationBarColor">@color/green</item>
+
     </style>
 
     <style name="Base.Widget.Material3.ExtendedFloatingActionButton.Icon." parent="Base.Theme.FlavorFinder">
