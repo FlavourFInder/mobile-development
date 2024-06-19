@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1067664910371",
+    "project_id": "projectauth-fb322",
+    "storage_bucket": "projectauth-fb322.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1067664910371:android:68fe67ae01d631f8aae996",
+        "android_client_info": {
+          "package_name": "com.example.flavorfinder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0Z82QCuFiF-3eEvQ61WuqvUyffD9jP4k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
